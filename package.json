@@ -34,10 +34,7 @@
         "accessible",
         "touch"
     ],
-    "files": [
-        "src",
-        "dist"
-    ],
+    "files": ["dist"],
     "description": "*An awesome drag and drop library for Svelte 3 (not using the browser's built-in dnd, thanks god): Rich animations, nested containers, touch support and more *",
     "version": "0.9.14",
     "repository": {
