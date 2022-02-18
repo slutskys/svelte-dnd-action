@@ -3,7 +3,6 @@
     "svelte": "dist/index.js",
     "module": "dist/index.mjs",
     "main": "dist/index.umd.js",
-    "types": "dist/index.d.ts",
     "scripts": {
         "test": "cypress run",
         "lint": "eslint .",

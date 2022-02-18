@@ -9,3 +9,4 @@ export {
     overrideItemIdKeyNameBeforeInitialisingDndZones,
     setDebugMode
 } from "./constants";
+export * from "./types";
