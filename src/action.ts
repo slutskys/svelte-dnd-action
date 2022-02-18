@@ -24,12 +24,38 @@ import {toString} from "./helpers/util";
  * @param {Options} options
  * @return {{update: function, destroy: function}}
  */
-export function dndzone(node, options) {
+
+export type TransformDraggedElementFunction = (
+    element?: HTMLElement, // the dragged element.
+    draggedElementData?: Item, // the data of the item from the items array
+    index?: number // the index the dragged element would get if dropped into the new dnd-zone
+) => void;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export declare type Item = Record<string, any>;
+
+export interface Options {
+    items: Item[]; // the list of items that was used to generate the children of the given node
+    type?: string; // the type of the dnd zone. children dragged from here can only be dropped in other zones of the same type, defaults to a base type
+    flipDurationMs?: number; // if the list animated using flip (recommended), specifies the flip duration such that everything syncs with it without conflict
+    dragDisabled?: boolean;
+    morphDisabled?: boolean;
+    dropFromOthersDisabled?: boolean;
+    zoneTabIndex?: number; // set the tabindex of the list container when not dragging
+    dropTargetClasses?: string[];
+    dropTargetStyle?: Record<string, string>;
+    transformDraggedElement?: TransformDraggedElementFunction;
+    autoAriaDisabled?: boolean;
+    centreDraggedOnCursor?: boolean;
+}
+
+export function dndzone(node: HTMLElement, options: Options) {
     validateOptions(options);
     const pointerZone = pointerDndZone(node, options);
     const keyboardZone = keyboardDndZone(node, options);
+
     return {
-        update: newOptions => {
+        update: (newOptions: Options) => {
             validateOptions(newOptions);
             pointerZone.update(newOptions);
             keyboardZone.update(newOptions);
@@ -41,8 +67,8 @@ export function dndzone(node, options) {
     };
 }
 
-function validateOptions(options) {
-    /*eslint-disable*/
+function validateOptions(options: Options) {
+    /*eslint-disable @typescript-eslint/no-unused-vars*/
     const {
         items,
         flipDurationMs,
@@ -77,6 +103,11 @@ function validateOptions(options) {
     }
 }
 
-function isInt(value) {
-    return !isNaN(value) && (function(x) { return (x | 0) === x; })(parseFloat(value));
+function isInt(value: number): boolean {
+    return (
+        !isNaN(value) &&
+        (function (x) {
+            return (x | 0) === x;
+        })(parseFloat(value.toString()))
+    );
 }

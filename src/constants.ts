@@ -25,9 +25,11 @@ export const DRAGGED_ELEMENT_ID = "dnd-action-dragged-el";
 
 export let ITEM_ID_KEY = "id";
 let activeDndZoneCount = 0;
+
 export function incrementActiveDropZoneCount() {
     activeDndZoneCount++;
 }
+
 export function decrementActiveDropZoneCount() {
     if (activeDndZoneCount === 0) {
         throw new Error("Bug! trying to decrement when there are no dropzones");
@@ -41,7 +43,7 @@ export function decrementActiveDropZoneCount() {
  * @param {String} newKeyName
  * @throws {Error} if it was called when there are rendered dndzones or if it is given the wrong type (not a string)
  */
-export function overrideItemIdKeyNameBeforeInitialisingDndZones(newKeyName) {
+export function overrideItemIdKeyNameBeforeInitialisingDndZones(newKeyName: string) {
     if (activeDndZoneCount > 0) {
         throw new Error("can only override the id key before initialising any dndzone");
     }
@@ -54,13 +56,19 @@ export function overrideItemIdKeyNameBeforeInitialisingDndZones(newKeyName) {
 
 export const isOnServer = typeof window === "undefined";
 
-export let printDebug = () => {};
+type LogFunction = (...data: unknown[]) => void;
+
+interface PrintDebug {
+    (generateMessage: () => unknown[], logFunction?: LogFunction): void;
+}
+
+export let printDebug: PrintDebug = () => {};
 
 /**
  * Allows the user to show/hide console debug output
  * * @param {Boolean} isDebug
  */
-export function setDebugMode(isDebug) {
+export function setDebugMode(isDebug: boolean): void {
     if (isDebug) {
         printDebug = (generateMessage, logFunction = console.debug) => {
             const message = generateMessage();
