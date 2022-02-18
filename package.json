@@ -8,7 +8,7 @@
         "test": "cypress run",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "build": "yarn lint && yarn tsc && yarn build:esm && yarn build:umd",
+        "build": "yarn lint && yarn tsc",
         "build:esm": "rollup dist/index.js --file=dist/index.mjs --format esm --silent",
         "build:umd": "rollup dist/index.js --file=dist/index.umd.js --format umd --name=DndAction --silent",
         "prepublishOnly": "yarn build"
@@ -38,7 +38,7 @@
         "dist"
     ],
     "description": "*An awesome drag and drop library for Svelte 3 (not using the browser's built-in dnd, thanks god): Rich animations, nested containers, touch support and more *",
-    "version": "0.9.18",
+    "version": "0.9.19",
     "publishConfig": {
         "registry": "https://npm.pkg.github.com"
     },
