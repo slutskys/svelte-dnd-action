@@ -1,30 +1,27 @@
 {
     "name": "svelte-dnd-action",
-    "svelte": "src/index.js",
+    "svelte": "dist/index.js",
     "module": "dist/index.mjs",
-    "main": "dist/index.js",
+    "main": "dist/index.umd.js",
     "types": "dist/index.d.ts",
     "scripts": {
         "test": "cypress run",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "build": "yarn lint && rollup -c",
+        "build": "yarn lint && yarn tsc && yarn build:esm && yarn build:umd",
+        "build:esm": "rollup dist/index.js --file=dist/index.mjs --format esm",
+        "build:umd": "rollup dist/index.js --file=dist/index.umd.js --format umd --name=DndAction",
         "prepublishOnly": "yarn build"
     },
     "dependencies": {},
     "devDependencies": {
-        "@babel/core": "^7.9.6",
-        "@babel/preset-env": "^7.9.6",
-        "@rollup/plugin-node-resolve": "^6.0.0",
-        "babel-jest": "^26.0.1",
         "cypress": "^4.5.0",
         "eslint": "^7.11.0",
         "husky": "^4.3.0",
         "lint-staged": "^10.5.1",
         "prettier": "^2.1.2",
         "rollup": "^1.20.0",
-        "rollup-plugin-babel": "^4.3.2",
-        "rollup-plugin-copy": "^3.3.0"
+        "typescript": "^4.5.5"
     },
     "keywords": [
         "svelte",
