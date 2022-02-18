@@ -9,5 +9,7 @@ module.exports = {
         ecmaVersion: 12,
         sourceType: "module"
     },
-    rules: {}
+    rules: {
+        "@typescript-eslint/no-empty-function": 0
+    }
 };

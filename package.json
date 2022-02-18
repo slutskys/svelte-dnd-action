@@ -9,8 +9,8 @@
         "lint": "eslint .",
         "format": "prettier --write .",
         "build": "yarn lint && yarn tsc && yarn build:esm && yarn build:umd",
-        "build:esm": "rollup dist/index.js --file=dist/index.mjs --format esm",
-        "build:umd": "rollup dist/index.js --file=dist/index.umd.js --format umd --name=DndAction",
+        "build:esm": "rollup dist/index.js --file=dist/index.mjs --format esm --silent",
+        "build:umd": "rollup dist/index.js --file=dist/index.umd.js --format umd --name=DndAction --silent",
         "prepublishOnly": "yarn build"
     },
     "dependencies": {},
