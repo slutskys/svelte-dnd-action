@@ -59,7 +59,7 @@ export const isOnServer = typeof window === "undefined";
 type LogFunction = (...data: unknown[]) => void;
 
 interface PrintDebug {
-    (generateMessage: () => unknown[], logFunction?: LogFunction): void;
+    (generateMessage: () => unknown | unknown[], logFunction?: LogFunction): void;
 }
 
 export let printDebug: PrintDebug = () => {};

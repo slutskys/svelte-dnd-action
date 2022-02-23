@@ -1,4 +1,6 @@
 import {SHADOW_ELEMENT_ATTRIBUTE_NAME, DRAGGED_ELEMENT_ID} from "../constants";
+import {GetClasses, GetStyles, Point} from "../internalTypes";
+import {TransformDraggedElementFunction} from "../types";
 import {findCenter} from "./intersection";
 
 const TRANSITION_DURATION_SECONDS = 0.2;
@@ -8,7 +10,7 @@ const TRANSITION_DURATION_SECONDS = 0.2;
  * @param {string} property
  * @return {string} - the transition string
  */
-function trs(property) {
+function trs(property: string): string {
     return `${property} ${TRANSITION_DURATION_SECONDS}s ease`;
 }
 /**
@@ -17,9 +19,15 @@ function trs(property) {
  * @param {Point} [positionCenterOnXY]
  * @return {Node} - the cloned, styled element
  */
-export function createDraggedElementFrom(originalElement, positionCenterOnXY) {
+export function createDraggedElementFrom(originalElement: HTMLElement, positionCenterOnXY: Point): HTMLElement {
     const rect = originalElement.getBoundingClientRect();
     const draggedEl = originalElement.cloneNode(true);
+
+    // should never happen, cloneNode returns node type even though the underlying type is an HTMLElement
+    if (!(draggedEl instanceof HTMLElement)) {
+        throw new Error("Cloned element not instance of HTMLElement");
+    }
+
     copyStylesFromTo(originalElement, draggedEl);
     draggedEl.id = DRAGGED_ELEMENT_ID;
     draggedEl.style.position = "fixed";
@@ -54,7 +62,7 @@ export function createDraggedElementFrom(originalElement, positionCenterOnXY) {
  * styles the dragged element to a 'dropped' state
  * @param {HTMLElement} draggedEl
  */
-export function moveDraggedElementToWasDroppedState(draggedEl) {
+export function moveDraggedElementToWasDroppedState(draggedEl: HTMLElement): void {
     draggedEl.style.cursor = "grab";
 }
 
@@ -66,7 +74,13 @@ export function moveDraggedElementToWasDroppedState(draggedEl) {
  * @param {number} currentMouseY
  * @param {function} transformDraggedElement - function to transform the dragged element, does nothing by default.
  */
-export function morphDraggedElementToBeLike(draggedEl, copyFromEl, currentMouseX, currentMouseY, transformDraggedElement) {
+export function morphDraggedElementToBeLike(
+    draggedEl: HTMLElement,
+    copyFromEl: HTMLElement,
+    currentMouseX: number,
+    currentMouseY: number,
+    transformDraggedElement: TransformDraggedElementFunction
+): void {
     const newRect = copyFromEl.getBoundingClientRect();
     const draggedElRect = draggedEl.getBoundingClientRect();
     const widthChange = newRect.width - draggedElRect.width;
@@ -91,7 +105,7 @@ export function morphDraggedElementToBeLike(draggedEl, copyFromEl, currentMouseX
  * @param {HTMLElement} copyFromEl
  * @param {HTMLElement} copyToEl
  */
-function copyStylesFromTo(copyFromEl, copyToEl) {
+function copyStylesFromTo(copyFromEl: HTMLElement, copyToEl: HTMLElement): void {
     const computedStyle = window.getComputedStyle(copyFromEl);
     Array.from(computedStyle)
         .filter(
@@ -117,16 +131,16 @@ function copyStylesFromTo(copyFromEl, copyToEl) {
  * @param {HTMLElement} draggableEl
  * @param {boolean} dragDisabled
  */
-export function styleDraggable(draggableEl, dragDisabled) {
+export function styleDraggable(draggableEl: HTMLElement, dragDisabled: boolean): void {
     draggableEl.draggable = false;
     draggableEl.ondragstart = () => false;
     if (!dragDisabled) {
         draggableEl.style.userSelect = "none";
-        draggableEl.style.WebkitUserSelect = "none";
+        draggableEl.style.webkitUserSelect = "none";
         draggableEl.style.cursor = "grab";
     } else {
         draggableEl.style.userSelect = "";
-        draggableEl.style.WebkitUserSelect = "";
+        draggableEl.style.webkitUserSelect = "";
         draggableEl.style.cursor = "";
     }
 }
@@ -135,7 +149,7 @@ export function styleDraggable(draggableEl, dragDisabled) {
  * Hides the provided element so that it can stay in the dom without interrupting
  * @param {HTMLElement} dragTarget
  */
-export function hideOriginalDragTarget(dragTarget) {
+export function hideOriginalDragTarget(dragTarget: HTMLElement): void {
     dragTarget.style.display = "none";
     dragTarget.style.position = "fixed";
     dragTarget.style.zIndex = "-5";
@@ -145,7 +159,7 @@ export function hideOriginalDragTarget(dragTarget) {
  * styles the shadow element
  * @param {HTMLElement} shadowEl
  */
-export function decorateShadowEl(shadowEl) {
+export function decorateShadowEl(shadowEl: HTMLElement): void {
     shadowEl.style.visibility = "hidden";
     shadowEl.setAttribute(SHADOW_ELEMENT_ATTRIBUTE_NAME, "true");
 }
@@ -154,7 +168,7 @@ export function decorateShadowEl(shadowEl) {
  * undo the styles the shadow element
  * @param {HTMLElement} shadowEl
  */
-export function unDecorateShadowElement(shadowEl) {
+export function unDecorateShadowElement(shadowEl: HTMLElement): void {
     shadowEl.style.visibility = "";
     shadowEl.removeAttribute(SHADOW_ELEMENT_ATTRIBUTE_NAME);
 }
@@ -165,11 +179,16 @@ export function unDecorateShadowElement(shadowEl) {
  * @param {Function} getStyles - maps a dropzone to a styles object (so the styles can be removed)
  * @param {Function} getClasses - maps a dropzone to a classList
  */
-export function styleActiveDropZones(dropZones, getStyles = () => {}, getClasses = () => []) {
+export function styleActiveDropZones(
+    dropZones: HTMLElement[],
+    getStyles: GetStyles = () => ({}),
+    getClasses: GetClasses = () => []
+) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.keys(styles).forEach(style => {
-            dz.style[style] = styles[style];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            dz.style[style as any] = styles[style];
         });
         getClasses(dz).forEach(c => dz.classList.add(c));
     });
@@ -181,11 +200,12 @@ export function styleActiveDropZones(dropZones, getStyles = () => {}, getClasses
  * @param {Function} getStyles - maps a dropzone to a styles object
  * @param {Function} getClasses - maps a dropzone to a classList
  */
-export function styleInactiveDropZones(dropZones, getStyles = () => {}, getClasses = () => []) {
+export function styleInactiveDropZones(dropZones: HTMLElement[], getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.keys(styles).forEach(style => {
-            dz.style[style] = "";
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            dz.style[style as any] = "";
         });
         getClasses(dz).forEach(c => dz.classList.contains(c) && dz.classList.remove(c));
     });
@@ -196,11 +216,12 @@ export function styleInactiveDropZones(dropZones, getStyles = () => {}, getClass
  * @param {HTMLElement} el
  * @return {function(): void} - run this function to undo the operation and restore the original values
  */
-export function preventShrinking(el) {
+export function preventShrinking(el: HTMLElement): () => void {
     const originalMinHeight = el.style.minHeight;
     el.style.minHeight = window.getComputedStyle(el).getPropertyValue("height");
     const originalMinWidth = el.style.minWidth;
     el.style.minWidth = window.getComputedStyle(el).getPropertyValue("width");
+
     return function undo() {
         el.style.minHeight = originalMinHeight;
         el.style.minWidth = originalMinWidth;

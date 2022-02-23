@@ -1,3 +1,6 @@
+import { IndexObj } from '../internalTypes';
+import {DndEventInfo, Item} from "../types";
+
 // external events
 const FINALIZE_EVENT_NAME = "finalize";
 const CONSIDER_EVENT_NAME = "consider";
@@ -11,7 +14,7 @@ const CONSIDER_EVENT_NAME = "consider";
  * @param {Array} items
  * @param {Info} info
  */
-export function dispatchFinalizeEvent(el, items, info) {
+export function dispatchFinalizeEvent(el: Node, items: Item[], info: DndEventInfo) {
     el.dispatchEvent(
         new CustomEvent(FINALIZE_EVENT_NAME, {
             detail: {items, info}
@@ -25,7 +28,7 @@ export function dispatchFinalizeEvent(el, items, info) {
  * @param {Array} items
  * @param {Info} info
  */
-export function dispatchConsiderEvent(el, items, info) {
+export function dispatchConsiderEvent(el: Node, items: Item[], info: DndEventInfo) {
     el.dispatchEvent(
         new CustomEvent(CONSIDER_EVENT_NAME, {
             detail: {items, info}
@@ -44,7 +47,7 @@ export const DRAGGED_LEFT_TYPES = {
     OUTSIDE_OF_ANY: "outsideOfAny"
 };
 
-export function dispatchDraggedElementEnteredContainer(containerEl, indexObj, draggedEl) {
+export function dispatchDraggedElementEnteredContainer(containerEl: Node, indexObj: IndexObj, draggedEl: Node) {
     containerEl.dispatchEvent(
         new CustomEvent(DRAGGED_ENTERED_EVENT_NAME, {
             detail: {indexObj, draggedEl}
@@ -57,7 +60,7 @@ export function dispatchDraggedElementEnteredContainer(containerEl, indexObj, dr
  * @param draggedEl - the dragged element
  * @param theOtherDz - the new dropzone the element entered
  */
-export function dispatchDraggedElementLeftContainerForAnother(containerEl, draggedEl, theOtherDz) {
+export function dispatchDraggedElementLeftContainerForAnother(containerEl: Node, draggedEl: Node, theOtherDz: Node) {
     containerEl.dispatchEvent(
         new CustomEvent(DRAGGED_LEFT_EVENT_NAME, {
             detail: {draggedEl, type: DRAGGED_LEFT_TYPES.LEFT_FOR_ANOTHER, theOtherDz}
@@ -65,21 +68,21 @@ export function dispatchDraggedElementLeftContainerForAnother(containerEl, dragg
     );
 }
 
-export function dispatchDraggedElementLeftContainerForNone(containerEl, draggedEl) {
+export function dispatchDraggedElementLeftContainerForNone(containerEl: Node, draggedEl: Node) {
     containerEl.dispatchEvent(
         new CustomEvent(DRAGGED_LEFT_EVENT_NAME, {
             detail: {draggedEl, type: DRAGGED_LEFT_TYPES.OUTSIDE_OF_ANY}
         })
     );
 }
-export function dispatchDraggedElementIsOverIndex(containerEl, indexObj, draggedEl) {
+export function dispatchDraggedElementIsOverIndex(containerEl: Node, indexObj: IndexObj, draggedEl: Node) {
     containerEl.dispatchEvent(
         new CustomEvent(DRAGGED_OVER_INDEX_EVENT_NAME, {
             detail: {indexObj, draggedEl}
         })
     );
 }
-export function dispatchDraggedLeftDocument(draggedEl) {
+export function dispatchDraggedLeftDocument(draggedEl: Node) {
     window.dispatchEvent(
         new CustomEvent(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, {
             detail: {draggedEl}

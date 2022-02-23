@@ -1,21 +1,38 @@
 import {calcInnerDistancesBetweenPointAndSidesOfElement} from "./intersection";
 const SCROLL_ZONE_PX = 25;
 
-export function makeScroller() {
-    let scrollingInfo;
+type ScrollingInfo = {
+    directionObj: undefined | {
+        x: number;
+        y: number;
+    };
+    stepPx: number;
+};
+
+interface Scroller {
+    scrollIfNeeded(pointer: { x: number; y: number }, elementToScroll: HTMLElement): boolean;
+    resetScrolling(): void;
+}
+
+export function makeScroller(): Scroller {
+    let scrollingInfo: ScrollingInfo;
+
     function resetScrolling() {
         scrollingInfo = {directionObj: undefined, stepPx: 0};
     }
+
     resetScrolling();
     // directionObj {x: 0|1|-1, y:0|1|-1} - 1 means down in y and right in x
-    function scrollContainer(containerEl) {
+    function scrollContainer(containerEl: HTMLElement) {
         const {directionObj, stepPx} = scrollingInfo;
+
         if (directionObj) {
             containerEl.scrollBy(directionObj.x * stepPx, directionObj.y * stepPx);
             window.requestAnimationFrame(() => scrollContainer(containerEl));
         }
     }
-    function calcScrollStepPx(distancePx) {
+
+    function calcScrollStepPx(distancePx: number): number {
         return SCROLL_ZONE_PX - distancePx;
     }
 
@@ -24,17 +41,20 @@ export function makeScroller() {
      * Can be called repeatedly with updated pointer and elementToScroll values without issues
      * @return {boolean} - true if scrolling was needed
      */
-    function scrollIfNeeded(pointer, elementToScroll) {
+    function scrollIfNeeded(pointer: { x: number; y: number }, elementToScroll: HTMLElement): boolean {
         if (!elementToScroll) {
             return false;
         }
+
         const distances = calcInnerDistancesBetweenPointAndSidesOfElement(pointer, elementToScroll);
         if (distances === null) {
             resetScrolling();
             return false;
         }
+
         const isAlreadyScrolling = !!scrollingInfo.directionObj;
         let [scrollingVertically, scrollingHorizontally] = [false, false];
+
         // vertical
         if (elementToScroll.scrollHeight > elementToScroll.clientHeight) {
             if (distances.bottom < SCROLL_ZONE_PX) {
@@ -51,6 +71,7 @@ export function makeScroller() {
                 return true;
             }
         }
+
         // horizontal
         if (elementToScroll.scrollWidth > elementToScroll.clientWidth) {
             if (distances.right < SCROLL_ZONE_PX) {
@@ -67,6 +88,7 @@ export function makeScroller() {
                 return true;
             }
         }
+
         resetScrolling();
         return false;
     }

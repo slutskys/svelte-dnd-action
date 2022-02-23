@@ -10,11 +10,12 @@ import {
 import {makeScroller} from "./scroller";
 import {getDepth} from "./util";
 import {printDebug} from "../constants";
+import {Point} from "../internalTypes";
 
 const INTERVAL_MS = 200;
 const TOLERANCE_PX = 10;
 const {scrollIfNeeded, resetScrolling} = makeScroller();
-let next;
+let next: number | undefined;
 
 /**
  * Tracks the dragged elements and performs the side effects when it is dragged over a drop zone (basically dispatching custom-events scrolling)
@@ -22,12 +23,12 @@ let next;
  * @param {HTMLElement} draggedEl
  * @param {number} [intervalMs = INTERVAL_MS]
  */
-export function observe(draggedEl, dropZones, intervalMs = INTERVAL_MS) {
+export function observe(draggedEl: HTMLElement, dropZones: Set<HTMLElement>, intervalMs: number = INTERVAL_MS) {
     // initialization
-    let lastDropZoneFound;
-    let lastIndexFound;
+    let lastDropZoneFound: HTMLElement | undefined;
+    let lastIndexFound: number | undefined;
     let lastIsDraggedInADropZone = false;
-    let lastCentrePositionOfDragged;
+    let lastCentrePositionOfDragged: Point | undefined;
     // We are sorting to make sure that in case of nested zones of the same type the one "on top" is considered first
     const dropZonesFromDeepToShallow = Array.from(dropZones).sort((dz1, dz2) => getDepth(dz2) - getDepth(dz1));
 
@@ -36,7 +37,13 @@ export function observe(draggedEl, dropZones, intervalMs = INTERVAL_MS) {
      */
     function andNow() {
         const currentCenterOfDragged = findCenterOfElement(draggedEl);
-        const scrolled = scrollIfNeeded(currentCenterOfDragged, lastDropZoneFound);
+
+        let scrolled = false;
+
+        if (lastDropZoneFound) {
+            scrolled = scrollIfNeeded(currentCenterOfDragged, lastDropZoneFound);
+        }
+
         // we only want to make a new decision after the element was moved a bit to prevent flickering
         if (
             !scrolled &&
@@ -47,6 +54,7 @@ export function observe(draggedEl, dropZones, intervalMs = INTERVAL_MS) {
             next = window.setTimeout(andNow, intervalMs);
             return;
         }
+
         if (isElementOffDocument(draggedEl)) {
             printDebug(() => "off document");
             dispatchDraggedLeftDocument(draggedEl);
@@ -54,15 +62,22 @@ export function observe(draggedEl, dropZones, intervalMs = INTERVAL_MS) {
         }
 
         lastCentrePositionOfDragged = currentCenterOfDragged;
+
         // this is a simple algorithm, potential improvement: first look at lastDropZoneFound
         let isDraggedInADropZone = false;
+
         for (const dz of dropZonesFromDeepToShallow) {
-            if (scrolled) resetIndexesCacheForDz(lastDropZoneFound);
+            if (scrolled && lastDropZoneFound) {
+                resetIndexesCacheForDz(lastDropZoneFound);
+            }
+
             const indexObj = findWouldBeIndex(draggedEl, dz);
+
             if (indexObj === null) {
                 // it is not inside
                 continue;
             }
+
             const {index} = indexObj;
             isDraggedInADropZone = true;
             // the element is over a container
@@ -86,13 +101,15 @@ export function observe(draggedEl, dropZones, intervalMs = INTERVAL_MS) {
         } else {
             lastIsDraggedInADropZone = true;
         }
+
         next = window.setTimeout(andNow, intervalMs);
     }
+
     andNow();
 }
 
 // assumption - we can only observe one dragged element at a time, this could be changed in the future
-export function unobserve() {
+export function unobserve(): void {
     printDebug(() => "unobserving");
     clearTimeout(next);
     resetScrolling();
