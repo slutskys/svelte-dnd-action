@@ -1,3 +1,5 @@
+import type { Properties as CSSProperties } from 'csstype';
+
 export type TransformDraggedElementFunction = (
     element?: HTMLElement, // the dragged element.
     draggedElementData?: Item, // the data of the item from the items array
@@ -16,13 +18,13 @@ export interface Options {
     dropFromOthersDisabled?: boolean;
     zoneTabIndex?: number; // set the tabindex of the list container when not dragging
     dropTargetClasses?: string[];
-    dropTargetStyle?: Record<string, string>;
+    dropTargetStyle?: CSSProperties<string | number>;
     transformDraggedElement?: TransformDraggedElementFunction;
     autoAriaDisabled?: boolean;
     centreDraggedOnCursor?: boolean;
     dropAnimationDurationMs?: number;
 }
-
+  
 export interface DndEventInfo {
     trigger: string; // the type of dnd event that took place
     id: string;

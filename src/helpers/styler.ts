@@ -186,9 +186,8 @@ interface DropZoneIterable {
 export function styleActiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
-        Object.keys(styles).forEach(style => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            dz.style[style as any] = styles[style];
+        Object.entries(styles).forEach(([property, value]) => {
+            dz.style.setProperty(property, value);
         });
         getClasses(dz).forEach(c => dz.classList.add(c));
     });
@@ -205,8 +204,7 @@ export function styleInactiveDropZones(dropZones: DropZoneIterable, getStyles: G
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.keys(styles).forEach(style => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            dz.style[style as any] = "";
+            dz.style.setProperty(style, "");
         });
         getClasses(dz).forEach(c => dz.classList.contains(c) && dz.classList.remove(c));
     });

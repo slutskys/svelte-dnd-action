@@ -1,4 +1,5 @@
 import {DndEventInfo, Item, TransformDraggedElementFunction} from "./types";
+import type { Properties as CSSProperties } from 'csstype';
 
 export type Point = {
     x: number;
@@ -17,7 +18,7 @@ export type IndexObj = {
     isProximityBased: boolean;
 };
 
-export type GetStyles = (dz: HTMLElement) => Record<string, string>;
+export type GetStyles = (dz: HTMLElement) => CSSProperties<string | number>;
 export type GetClasses = (dz: HTMLElement) => string[];
 
 export type FinalizeEvent = CustomEvent<{
@@ -59,7 +60,7 @@ export type InternalConfig = {
     dragDisabled: boolean;
     morphDisabled: boolean;
     dropFromOthersDisabled: boolean;
-    dropTargetStyle: Record<string, string>;
+    dropTargetStyle: CSSProperties<string | number>;
     dropTargetClasses: string[];
     transformDraggedElement: TransformDraggedElementFunction;
     autoAriaDisabled?: boolean;
