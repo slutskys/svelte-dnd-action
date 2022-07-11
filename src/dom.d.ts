@@ -2,12 +2,12 @@ import { DraggedEnteredEvent, DraggedLeftDocumentEvent, DraggedLeftEvent, Dragge
 
 declare global {
   interface HTMLElementEventMap {
-    'draggedEntered': DraggedEnteredEvent;
-    'draggedLeft': DraggedLeftEvent;
-    'draggedOverIndex': DraggedOverIndexEvent;
+    draggedEntered: DraggedEnteredEvent;
+    draggedLeft: DraggedLeftEvent;
+    draggedOverIndex: DraggedOverIndexEvent;
   }
 
   interface WindowEventMap {
-    'draggedLeftDocument': DraggedLeftDocumentEvent;
+    draggedLeftDocument: DraggedLeftDocumentEvent;
   }
 }

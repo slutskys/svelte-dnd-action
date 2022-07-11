@@ -1,4 +1,4 @@
-import { IndexObj } from '../internalTypes';
+import { DraggedEnteredEvent, DraggedLeftDocumentEvent, DraggedLeftEvent, DraggedOverIndexEvent, IndexObj } from '../internalTypes';
 import {DndEventInfo, Item} from "../types";
 
 // external events
@@ -45,14 +45,14 @@ export const DRAGGED_LEFT_DOCUMENT_EVENT_NAME = "draggedLeftDocument";
 export const DRAGGED_LEFT_TYPES = {
     LEFT_FOR_ANOTHER: "leftForAnother",
     OUTSIDE_OF_ANY: "outsideOfAny"
-};
+} as const;
 
 export function dispatchDraggedElementEnteredContainer(containerEl: Node, indexObj: IndexObj, draggedEl: Node) {
-    containerEl.dispatchEvent(
-        new CustomEvent(DRAGGED_ENTERED_EVENT_NAME, {
-            detail: {indexObj, draggedEl}
-        })
-    );
+    const event: DraggedEnteredEvent = new CustomEvent(DRAGGED_ENTERED_EVENT_NAME, {
+      detail: { indexObj, draggedEl }
+    });
+
+    containerEl.dispatchEvent(event);
 }
 
 /**
@@ -61,31 +61,32 @@ export function dispatchDraggedElementEnteredContainer(containerEl: Node, indexO
  * @param theOtherDz - the new dropzone the element entered
  */
 export function dispatchDraggedElementLeftContainerForAnother(containerEl: Node, draggedEl: Node, theOtherDz: Node) {
-    containerEl.dispatchEvent(
-        new CustomEvent(DRAGGED_LEFT_EVENT_NAME, {
-            detail: {draggedEl, type: DRAGGED_LEFT_TYPES.LEFT_FOR_ANOTHER, theOtherDz}
-        })
-    );
+  const event: DraggedLeftEvent = new CustomEvent(DRAGGED_LEFT_EVENT_NAME, {
+    detail: { draggedEl, type: DRAGGED_LEFT_TYPES.LEFT_FOR_ANOTHER, theOtherDz }
+  });
+
+  containerEl.dispatchEvent(event);
 }
 
 export function dispatchDraggedElementLeftContainerForNone(containerEl: Node, draggedEl: Node) {
-    containerEl.dispatchEvent(
-        new CustomEvent(DRAGGED_LEFT_EVENT_NAME, {
-            detail: {draggedEl, type: DRAGGED_LEFT_TYPES.OUTSIDE_OF_ANY}
-        })
-    );
+  const event: DraggedLeftEvent = new CustomEvent(DRAGGED_LEFT_EVENT_NAME, {
+    detail: { draggedEl, type: DRAGGED_LEFT_TYPES.OUTSIDE_OF_ANY }
+  });
+
+  containerEl.dispatchEvent(event);
 }
+
 export function dispatchDraggedElementIsOverIndex(containerEl: Node, indexObj: IndexObj, draggedEl: Node) {
-    containerEl.dispatchEvent(
-        new CustomEvent(DRAGGED_OVER_INDEX_EVENT_NAME, {
-            detail: {indexObj, draggedEl}
-        })
-    );
+  const event: DraggedOverIndexEvent = new CustomEvent(DRAGGED_OVER_INDEX_EVENT_NAME, {
+    detail: {indexObj, draggedEl}
+  });
+
+  containerEl.dispatchEvent(event);
 }
 export function dispatchDraggedLeftDocument(draggedEl: Node) {
-    window.dispatchEvent(
-        new CustomEvent(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, {
-            detail: {draggedEl}
-        })
-    );
+  const event: DraggedLeftDocumentEvent = new CustomEvent(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, {
+    detail: {draggedEl}
+  });
+  
+  window.dispatchEvent(event);
 }
