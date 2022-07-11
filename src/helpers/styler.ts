@@ -19,7 +19,7 @@ function trs(property: string): string {
  * @param {Point} [positionCenterOnXY]
  * @return {Node} - the cloned, styled element
  */
-export function createDraggedElementFrom(originalElement: HTMLElement, positionCenterOnXY: Point): HTMLElement {
+export function createDraggedElementFrom(originalElement: HTMLElement, positionCenterOnXY: Point | undefined): HTMLElement {
     const rect = originalElement.getBoundingClientRect();
     const draggedEl = originalElement.cloneNode(true);
 
@@ -173,6 +173,10 @@ export function unDecorateShadowElement(shadowEl: HTMLElement): void {
     shadowEl.removeAttribute(SHADOW_ELEMENT_ATTRIBUTE_NAME);
 }
 
+interface DropZoneIterable {
+  forEach(callback: (dz: HTMLElement) => void): void
+}
+
 /**
  * will mark the given dropzones as visually active
  * @param {Array<HTMLElement>} dropZones
@@ -180,7 +184,7 @@ export function unDecorateShadowElement(shadowEl: HTMLElement): void {
  * @param {Function} getClasses - maps a dropzone to a classList
  */
 export function styleActiveDropZones(
-    dropZones: HTMLElement[],
+    dropZones: DropZoneIterable,
     getStyles: GetStyles = () => ({}),
     getClasses: GetClasses = () => []
 ) {
@@ -200,7 +204,8 @@ export function styleActiveDropZones(
  * @param {Function} getStyles - maps a dropzone to a styles object
  * @param {Function} getClasses - maps a dropzone to a classList
  */
-export function styleInactiveDropZones(dropZones: HTMLElement[], getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
+
+export function styleInactiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.keys(styles).forEach(style => {
