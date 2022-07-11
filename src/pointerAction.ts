@@ -682,7 +682,7 @@ export function dndzone(node: HTMLElement, options: Options) {
 
     function configure(newConfig: InternalConfig, oldConfig?: InternalConfig) {
         if (oldConfig && oldConfig.type !== newConfig.type) {
-            unregisterDropZone(node, config.type);
+            unregisterDropZone(node, oldConfig.type);
         }
 
         registerDropZone(node, newConfig.type);
@@ -712,20 +712,20 @@ export function dndzone(node: HTMLElement, options: Options) {
                 styleInactiveDropZones(
                     [node],
                     dz => dzToConfig.get(dz)?.dropTargetStyle ?? newConfig.dropTargetStyle,
-                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? config.dropTargetClasses
+                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? newConfig.dropTargetClasses
                 );
             } else {
                 styleActiveDropZones(
                     [node],
-                    dz => dzToConfig.get(dz)?.dropTargetStyle ?? config.dropTargetStyle,
-                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? config.dropTargetClasses
+                    dz => dzToConfig.get(dz)?.dropTargetStyle ?? newConfig.dropTargetStyle,
+                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? newConfig.dropTargetClasses
                 );
             }
         }
 
-        dzToConfig.set(node, config);
+        dzToConfig.set(node, newConfig);
 
-        const shadowElIdx = findShadowElementIdx(config.items);
+        const shadowElIdx = findShadowElementIdx(newConfig.items);
 
         for (let idx = 0; idx < node.children.length; idx++) {
             const draggableEl = node.children[idx];
@@ -738,7 +738,7 @@ export function dndzone(node: HTMLElement, options: Options) {
             if (idx === shadowElIdx) {
                 if (draggedEl && !newConfig.morphDisabled && currentMousePosition) {
                     morphDraggedElementToBeLike(draggedEl, draggableEl, currentMousePosition.x, currentMousePosition.y, () =>
-                        config.transformDraggedElement(draggedEl, draggedElData, idx)
+                        newConfig.transformDraggedElement(draggedEl, draggedElData, idx)
                     );
                 }
                 decorateShadowEl(draggableEl);
