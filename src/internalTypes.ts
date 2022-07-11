@@ -12,12 +12,6 @@ export type AbsoluteRect = {
     right: number;
 };
 
-export type Rect = Point &
-    AbsoluteRect & {
-        width: number;
-        height: number;
-    };
-
 export type IndexObj = {
     index: number | undefined;
     isProximityBased: boolean;

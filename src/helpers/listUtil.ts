@@ -1,13 +1,6 @@
-import {
-    isCenterOfAInsideB,
-    calcDistanceBetweenCenters,
-    getAbsoluteRectNoTransforms,
-    isPointInsideRect,
-    findCenterOfElement,
-    AbsoluteRect
-} from "./intersection";
+import {isCenterOfAInsideB, calcDistanceBetweenCenters, getAbsoluteRectNoTransforms, isPointInsideRect, findCenterOfElement} from "./intersection";
 import {printDebug, SHADOW_ELEMENT_ATTRIBUTE_NAME} from "../constants";
-import {IndexObj} from "../internalTypes";
+import {IndexObj, AbsoluteRect} from "../internalTypes";
 
 // map from the reference to the parent element, to the absolute rects of its child elements, by child index
 type Index = Map<Element, Map<number, AbsoluteRect>>;
