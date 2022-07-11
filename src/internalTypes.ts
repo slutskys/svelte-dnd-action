@@ -1,5 +1,5 @@
 import {DndEventInfo, Item, TransformDraggedElementFunction} from "./types";
-import type { Properties as CSSProperties } from 'csstype';
+import type {Properties as CSSProperties} from "csstype";
 
 export type Point = {
     x: number;

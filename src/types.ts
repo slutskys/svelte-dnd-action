@@ -1,4 +1,4 @@
-import type { Properties as CSSProperties } from 'csstype';
+import type {Properties as CSSProperties} from "csstype";
 
 export type TransformDraggedElementFunction = (
     element?: HTMLElement, // the dragged element.
@@ -24,7 +24,7 @@ export interface Options {
     centreDraggedOnCursor?: boolean;
     dropAnimationDurationMs?: number;
 }
-  
+
 export interface DndEventInfo {
     trigger: string; // the type of dnd event that took place
     id: string;
