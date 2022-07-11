@@ -3,7 +3,7 @@ import {printDebug, SHADOW_ELEMENT_ATTRIBUTE_NAME} from "../constants";
 import {IndexObj, AbsoluteRect} from "../internalTypes";
 
 // map from the reference to the parent element, to the absolute rects of its child elements, by child index
-type Index = Map<Element, Map<number, AbsoluteRect>>;
+type Index = Map<HTMLElement, Map<number, AbsoluteRect>>;
 
 let dzToShadowIndexToRect: Index;
 
@@ -21,7 +21,7 @@ resetIndexesCache();
  * Resets the cache that allows for smarter "would be index" resolution for a specific dropzone, should be called after the zone was scrolled
  * @param {HTMLElement} dz
  */
-export function resetIndexesCacheForDz(dz: Element): void {
+export function resetIndexesCacheForDz(dz: HTMLElement): void {
     printDebug(() => "resetting indexes cache for dz");
 
     dzToShadowIndexToRect?.delete(dz);
