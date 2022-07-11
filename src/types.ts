@@ -20,6 +20,7 @@ export interface Options {
     transformDraggedElement?: TransformDraggedElementFunction;
     autoAriaDisabled?: boolean;
     centreDraggedOnCursor?: boolean;
+    dropAnimationDurationMs?: number;
 }
 
 export interface DndEventInfo {
@@ -32,4 +33,3 @@ export type DndEvent = {
     items: Item[];
     info: DndEventInfo;
 };
-
