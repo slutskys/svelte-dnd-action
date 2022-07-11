@@ -34,7 +34,7 @@ import {
 import {areArraysShallowEqualSameOrder, areObjectsShallowEqual, toString} from "./helpers/util";
 import {getBoundingRectNoTransforms} from "./helpers/intersection";
 import { Item, Options } from "./types";
-import { DraggedEnteredEvent, DraggedLeftEvent, DraggedOverIndexEvent, Point } from "./internalTypes";
+import { DraggedEnteredEvent, DraggedLeftEvent, DraggedOverIndexEvent, InternalConfig, Point } from "./internalTypes";
 
 const DEFAULT_DROP_ZONE_TYPE = "--any--";
 const MIN_OBSERVATION_INTERVAL_MS = 100;
@@ -43,16 +43,14 @@ const DEFAULT_DROP_TARGET_STYLE = {
     outline: "rgba(255, 255, 102, 0.7) solid 2px"
 };
 
-type DNDElement = HTMLElement;
-
-let originalDragTarget: DNDElement | undefined;
-let draggedEl: DNDElement | undefined;
+let originalDragTarget: HTMLElement | undefined;
+let draggedEl: HTMLElement | undefined;
 let draggedElData: Item | undefined;
 let draggedElType: string | undefined;
-let originDropZone: DNDElement | undefined;
+let originDropZone: HTMLElement | undefined;
 let originIndex: number | undefined;
 let shadowElData: Item | undefined;
-let shadowElDropZone: DNDElement | undefined;
+let shadowElDropZone: HTMLElement | undefined;
 let dragStartMousePosition: Point | undefined;
 let currentMousePosition: Point | undefined;
 let isWorkingOnPreviousDrag = false;
@@ -61,14 +59,14 @@ let unlockOriginDzMinDimensions: (() => void) | undefined;
 let isDraggedOutsideOfAnyDz = false;
 
 // a map from type to a set of drop-zones
-const typeToDropZones = new Map<string, Set<DNDElement>>();
+const typeToDropZones = new Map<string, Set<HTMLElement>>();
 // important - this is needed because otherwise the config that would be used for everyone is the config of the element that created the event listeners
-const dzToConfig = new Map<DNDElement, Options>();
+const dzToConfig = new Map<HTMLElement, InternalConfig>();
 // this is needed in order to be able to cleanup old listeners and avoid stale closures issues (as the listener is defined within each zone)
 const elToMouseDownListener = new WeakMap();
 
 /* drop-zones registration management */
-function registerDropZone(dropZoneEl: DNDElement, type: string) {
+function registerDropZone(dropZoneEl: HTMLElement, type: string) {
     printDebug(() => "registering drop-zone if absent");
     if (!typeToDropZones.has(type)) {
         typeToDropZones.set(type, new Set());
@@ -81,7 +79,7 @@ function registerDropZone(dropZoneEl: DNDElement, type: string) {
     }
 }
 
-function unregisterDropZone(dropZoneEl: DNDElement, type: string) {
+function unregisterDropZone(dropZoneEl: HTMLElement, type: string) {
     const dropZoneSet = typeToDropZones.get(type);
 
     if (!dropZoneSet) {
