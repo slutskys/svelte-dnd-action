@@ -43,3 +43,19 @@ export type DraggedOverIndexEvent = CustomEvent<{
 export type DraggedLeftDocumentEvent = CustomEvent<{
   draggedEl: Node;
 }>
+
+// the internal representation of the dnd config after default values have been applied
+export type InternalConfig = {
+  items: Item[];
+  type: string;
+  flipDurationMs: number;
+  dropAnimationDurationMs: number;
+  dragDisabled: boolean;
+  morphDisabled: boolean;
+  dropFromOthersDisabled: boolean;
+  dropTargetStyle: Record<string, string>;
+  dropTargetClasses: string[];
+  transformDraggedElement: TransformDraggedElementFunction;
+  autoAriaDisabled?: boolean;
+  centerDraggedOnCursor: boolean;
+};
