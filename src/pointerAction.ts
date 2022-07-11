@@ -63,7 +63,7 @@ const typeToDropZones = new Map<string, Set<HTMLElement>>();
 // important - this is needed because otherwise the config that would be used for everyone is the config of the element that created the event listeners
 const dzToConfig = new Map<HTMLElement, InternalConfig>();
 // this is needed in order to be able to cleanup old listeners and avoid stale closures issues (as the listener is defined within each zone)
-const elToMouseDownListener = new WeakMap();
+const elToMouseDownListener = new WeakMap<HTMLElement, (e: MouseEvent | TouchEvent) => void>();
 
 /* drop-zones registration management */
 function registerDropZone(dropZoneEl: HTMLElement, type: string) {
@@ -745,8 +745,13 @@ export function dndzone(node: HTMLElement, options: Options) {
                 continue;
             }
 
-            draggableEl.removeEventListener("mousedown", elToMouseDownListener.get(draggableEl));
-            draggableEl.removeEventListener("touchstart", elToMouseDownListener.get(draggableEl));
+            const draggableElMouseDownListener = elToMouseDownListener.get(draggableEl);
+
+            if (draggableElMouseDownListener) {
+                draggableEl.removeEventListener("mousedown", draggableElMouseDownListener);
+                draggableEl.removeEventListener("touchstart", draggableElMouseDownListener);
+            }
+
             if (!newConfig.dragDisabled) {
                 draggableEl.addEventListener("mousedown", handleMouseDown);
                 draggableEl.addEventListener("touchstart", handleMouseDown);
