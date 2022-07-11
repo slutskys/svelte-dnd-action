@@ -38,11 +38,7 @@ export function observe(draggedEl: HTMLElement, dropZones: Set<HTMLElement>, int
     function andNow() {
         const currentCenterOfDragged = findCenterOfElement(draggedEl);
 
-        let scrolled = false;
-
-        if (lastDropZoneFound) {
-            scrolled = scrollIfNeeded(currentCenterOfDragged, lastDropZoneFound);
-        }
+        const scrolled = scrollIfNeeded(currentCenterOfDragged, lastDropZoneFound);
 
         // we only want to make a new decision after the element was moved a bit to prevent flickering
         if (
