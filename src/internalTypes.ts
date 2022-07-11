@@ -56,5 +56,5 @@ export type InternalConfig = {
     dropTargetClasses: string[];
     transformDraggedElement: TransformDraggedElementFunction;
     autoAriaDisabled?: boolean;
-    centerDraggedOnCursor: boolean;
+    centreDraggedOnCursor: boolean;
 };
