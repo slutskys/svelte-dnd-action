@@ -5,6 +5,19 @@ export type Point = {
     y: number;
 };
 
+export type AbsoluteRect = {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+};
+
+export type Rect = Point &
+    AbsoluteRect & {
+        width: number;
+        height: number;
+    };
+
 export type IndexObj = {
     index: number | undefined;
     isProximityBased: boolean;
