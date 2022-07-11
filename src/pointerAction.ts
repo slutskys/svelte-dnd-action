@@ -485,19 +485,24 @@ function cleanupPostDrop() {
     isDraggedOutsideOfAnyDz = false;
 }
 
-export function dndzone(node: HTMLElement, options: Options) {
-    const config: Omit<Options, "items"> & {items: Options["items"] | undefined} = {
-        items: undefined,
-        type: undefined,
-        flipDurationMs: 0,
-        dragDisabled: false,
-        morphDisabled: false,
-        dropFromOthersDisabled: false,
-        dropTargetStyle: DEFAULT_DROP_TARGET_STYLE,
-        dropTargetClasses: [],
-        transformDraggedElement: () => {},
-        centreDraggedOnCursor: false
+function getInternalConfig(options: Options): InternalConfig {
+    return {
+        items: [...options.items],
+        flipDurationMs: options.flipDurationMs ?? 0,
+        dropAnimationDurationMs: options.flipDurationMs ?? 0,
+        type: options.type ?? DEFAULT_DROP_ZONE_TYPE,
+        dragDisabled: options.dragDisabled ?? false,
+        morphDisabled: options.morphDisabled ?? false,
+        dropFromOthersDisabled: options.morphDisabled ?? false,
+        dropTargetStyle: options.dropTargetStyle ?? DEFAULT_DROP_TARGET_STYLE,
+        dropTargetClasses: options.dropTargetClasses ?? [],
+        transformDraggedElement: options.transformDraggedElement ?? (() => {}),
+        centreDraggedOnCursor: options.centreDraggedOnCursor ?? false
     };
+}
+
+export function dndzone(node: HTMLElement, options: Options) {
+    let config = getInternalConfig(options);
 
     printDebug(() => [`dndzone good to go options: ${toString(options)}, config: ${toString(config)}`, {node}]);
     const elToIdx = new Map<HTMLElement, number>();
@@ -596,7 +601,6 @@ export function dndzone(node: HTMLElement, options: Options) {
             return;
         }
 
-        /** @type {ShadowRoot | HTMLDocument} */
         const rootNode = originDropZone.getRootNode();
 
         let originDropZoneRoot: Node;
@@ -676,72 +680,53 @@ export function dndzone(node: HTMLElement, options: Options) {
         window.addEventListener("touchend", handleDrop, {passive: false});
     }
 
-    function configure({
-        items,
-        flipDurationMs: dropAnimationDurationMs = 0,
-        type: newType = DEFAULT_DROP_ZONE_TYPE,
-        dragDisabled = false,
-        morphDisabled = false,
-        dropFromOthersDisabled = false,
-        dropTargetStyle = DEFAULT_DROP_TARGET_STYLE,
-        dropTargetClasses = [],
-        transformDraggedElement = () => {},
-        centreDraggedOnCursor = false
-    }: Options) {
-        config.dropAnimationDurationMs = dropAnimationDurationMs;
-        if (config.type && newType !== config.type) {
+    function configure(newConfig: InternalConfig, oldConfig?: InternalConfig) {
+        if (oldConfig && oldConfig.type !== newConfig.type) {
             unregisterDropZone(node, config.type);
         }
-        config.type = newType;
-        registerDropZone(node, newType);
 
-        config.items = [...items];
-        config.dragDisabled = dragDisabled;
-        config.morphDisabled = morphDisabled;
-        config.transformDraggedElement = transformDraggedElement;
-        config.centreDraggedOnCursor = centreDraggedOnCursor;
+        registerDropZone(node, newConfig.type);
 
-        // realtime update for dropTargetStyle
-        if (
-            isWorkingOnPreviousDrag &&
-            !finalizingPreviousDrag &&
-            (!areObjectsShallowEqual(dropTargetStyle, config.dropTargetStyle) ||
-                !areArraysShallowEqualSameOrder(dropTargetClasses, config.dropTargetClasses ?? []))
-        ) {
-            styleInactiveDropZones(
-                [node],
-                () => config.dropTargetStyle ?? {},
-                () => dropTargetClasses
-            );
-            styleActiveDropZones(
-                [node],
-                () => dropTargetStyle,
-                () => dropTargetClasses
-            );
-        }
-        config.dropTargetStyle = dropTargetStyle;
-        config.dropTargetClasses = [...dropTargetClasses];
+        if (isWorkingOnPreviousDrag && !finalizingPreviousDrag) {
+            const stylesChanged = !oldConfig || areObjectsShallowEqual(oldConfig.dropTargetStyle, newConfig.dropTargetStyle);
+            const classesChanged = !oldConfig || areArraysShallowEqualSameOrder(oldConfig.dropTargetClasses, newConfig.dropTargetClasses);
 
-        // realtime update for dropFromOthersDisabled
-        if (isWorkingOnPreviousDrag && config.dropFromOthersDisabled !== dropFromOthersDisabled) {
-            if (dropFromOthersDisabled) {
+            if (stylesChanged || classesChanged) {
                 styleInactiveDropZones(
                     [node],
-                    dz => dzToConfig.get(dz)?.dropTargetStyle ?? config["dropTargetStyle"] ?? {},
-                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? config["dropTargetClasses"] ?? []
+                    () => newConfig.dropTargetStyle,
+                    () => newConfig.dropTargetClasses
+                );
+                styleActiveDropZones(
+                    [node],
+                    () => newConfig.dropTargetStyle,
+                    () => newConfig.dropTargetClasses
+                );
+            }
+        }
+
+        // realtime update for dropFromOthersDisabled
+        // won't have a drag active on first run of this function, so can skip if oldConfig is not defined
+        if (isWorkingOnPreviousDrag && oldConfig && oldConfig.dropFromOthersDisabled !== newConfig.dropFromOthersDisabled) {
+            if (newConfig.dropFromOthersDisabled) {
+                styleInactiveDropZones(
+                    [node],
+                    dz => dzToConfig.get(dz)?.dropTargetStyle ?? newConfig.dropTargetStyle,
+                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? config.dropTargetClasses
                 );
             } else {
                 styleActiveDropZones(
                     [node],
-                    dz => dzToConfig.get(dz)?.dropTargetStyle ?? config["dropTargetStyle"] ?? {},
-                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? config["dropTargetClasses"] ?? []
+                    dz => dzToConfig.get(dz)?.dropTargetStyle ?? config.dropTargetStyle,
+                    dz => dzToConfig.get(dz)?.dropTargetClasses ?? config.dropTargetClasses
                 );
             }
         }
-        config.dropFromOthersDisabled = dropFromOthersDisabled;
 
         dzToConfig.set(node, config);
+
         const shadowElIdx = findShadowElementIdx(config.items);
+
         for (let idx = 0; idx < node.children.length; idx++) {
             const draggableEl = node.children[idx];
 
@@ -749,9 +734,9 @@ export function dndzone(node: HTMLElement, options: Options) {
                 continue;
             }
 
-            styleDraggable(draggableEl, dragDisabled);
+            styleDraggable(draggableEl, newConfig.dragDisabled);
             if (idx === shadowElIdx) {
-                if (draggedEl && !morphDisabled && currentMousePosition) {
+                if (draggedEl && !newConfig.morphDisabled && currentMousePosition) {
                     morphDraggedElementToBeLike(draggedEl, draggableEl, currentMousePosition.x, currentMousePosition.y, () =>
                         config.transformDraggedElement(draggedEl, draggedElData, idx)
                     );
@@ -762,7 +747,7 @@ export function dndzone(node: HTMLElement, options: Options) {
 
             draggableEl.removeEventListener("mousedown", elToMouseDownListener.get(draggableEl));
             draggableEl.removeEventListener("touchstart", elToMouseDownListener.get(draggableEl));
-            if (!dragDisabled) {
+            if (!newConfig.dragDisabled) {
                 draggableEl.addEventListener("mousedown", handleMouseDown);
                 draggableEl.addEventListener("touchstart", handleMouseDown);
                 elToMouseDownListener.set(draggableEl, handleMouseDown);
@@ -773,13 +758,15 @@ export function dndzone(node: HTMLElement, options: Options) {
         }
     }
 
-    configure(options);
-
     return {
         update: (newOptions: Options) => {
             printDebug(() => `pointer dndzone will update newOptions: ${toString(newOptions)}`);
-            configure(newOptions);
+            const newConfig = getInternalConfig(newOptions);
+
+            configure(newConfig, config);
+            config = newConfig;
         },
+
         destroy: () => {
             printDebug(() => "pointer dndzone will destroy");
             unregisterDropZone(node, config.type);
