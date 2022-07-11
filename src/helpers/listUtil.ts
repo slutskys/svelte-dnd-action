@@ -122,12 +122,14 @@ export function findWouldBeIndex(floatingAboveEl: HTMLElement, collectionBelowEl
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
 
-        if (child instanceof HTMLElement) {
-            const distance = calcDistanceBetweenCenters(floatingAboveEl, child);
-            if (distance < minDistanceSoFar) {
-                minDistanceSoFar = distance;
-                indexOfMin = i;
-            }
+        if (!(child instanceof HTMLElement)) {
+            continue;
+        }
+
+        const distance = calcDistanceBetweenCenters(floatingAboveEl, child);
+        if (distance < minDistanceSoFar) {
+            minDistanceSoFar = distance;
+            indexOfMin = i;
         }
     }
 

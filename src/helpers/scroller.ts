@@ -1,18 +1,14 @@
 import {calcInnerDistancesBetweenPointAndSidesOfElement} from "./intersection";
+import {Point} from "../internalTypes";
 const SCROLL_ZONE_PX = 25;
 
 type ScrollingInfo = {
-    directionObj:
-        | undefined
-        | {
-              x: number;
-              y: number;
-          };
+    directionObj: Point | undefined;
     stepPx: number;
 };
 
 interface Scroller {
-    scrollIfNeeded(pointer: {x: number; y: number}, elementToScroll: HTMLElement | undefined): boolean;
+    scrollIfNeeded(pointer: Point, elementToScroll: HTMLElement | undefined): boolean;
     resetScrolling(): void;
 }
 
@@ -43,7 +39,7 @@ export function makeScroller(): Scroller {
      * Can be called repeatedly with updated pointer and elementToScroll values without issues
      * @return {boolean} - true if scrolling was needed
      */
-    function scrollIfNeeded(pointer: {x: number; y: number}, elementToScroll: HTMLElement | undefined): boolean {
+    function scrollIfNeeded(pointer: Point, elementToScroll: HTMLElement | undefined): boolean {
         if (!elementToScroll) {
             return false;
         }
