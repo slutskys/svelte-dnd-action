@@ -183,7 +183,7 @@ interface DropZoneIterable {
  * @param {Function} getStyles - maps a dropzone to a styles object (so the styles can be removed)
  * @param {Function} getClasses - maps a dropzone to a classList
  */
-export function styleActiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
+export function styleActiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles, getClasses: GetClasses) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.entries(styles).forEach(([property, value]) => {
@@ -200,7 +200,7 @@ export function styleActiveDropZones(dropZones: DropZoneIterable, getStyles: Get
  * @param {Function} getClasses - maps a dropzone to a classList
  */
 
-export function styleInactiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
+export function styleInactiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles, getClasses: GetClasses) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.keys(styles).forEach(style => {
