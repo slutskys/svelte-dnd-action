@@ -7,7 +7,7 @@ const INTERVAL_MS = 300;
 type MousePosition = {
     x: number;
     y: number;
-}
+};
 
 let mousePosition: MousePosition | undefined;
 
@@ -17,9 +17,9 @@ let mousePosition: MousePosition | undefined;
  * @param {{clientX: number, clientY: number}} e
  */
 export function updateMousePosition(e: MouseEvent | TouchEvent) {
-    let c: { clientX: number; clientY: number };
+    let c: {clientX: number; clientY: number};
 
-    if ('touches' in e) {
+    if ("touches" in e) {
         c = e.touches[0];
     } else {
         c = e;

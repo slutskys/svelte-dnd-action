@@ -1,13 +1,13 @@
-import { DraggedEnteredEvent, DraggedLeftDocumentEvent, DraggedLeftEvent, DraggedOverIndexEvent } from './internalTypes';
+import {DraggedEnteredEvent, DraggedLeftDocumentEvent, DraggedLeftEvent, DraggedOverIndexEvent} from "./internalTypes";
 
 declare global {
-  interface HTMLElementEventMap {
-    draggedEntered: DraggedEnteredEvent;
-    draggedLeft: DraggedLeftEvent;
-    draggedOverIndex: DraggedOverIndexEvent;
-  }
+    interface HTMLElementEventMap {
+        draggedEntered: DraggedEnteredEvent;
+        draggedLeft: DraggedLeftEvent;
+        draggedOverIndex: DraggedOverIndexEvent;
+    }
 
-  interface WindowEventMap {
-    draggedLeftDocument: DraggedLeftDocumentEvent;
-  }
+    interface WindowEventMap {
+        draggedLeftDocument: DraggedLeftDocumentEvent;
+    }
 }

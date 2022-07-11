@@ -174,7 +174,7 @@ export function unDecorateShadowElement(shadowEl: HTMLElement): void {
 }
 
 interface DropZoneIterable {
-  forEach(callback: (dz: HTMLElement) => void): void
+    forEach(callback: (dz: HTMLElement) => void): void;
 }
 
 /**
@@ -183,11 +183,7 @@ interface DropZoneIterable {
  * @param {Function} getStyles - maps a dropzone to a styles object (so the styles can be removed)
  * @param {Function} getClasses - maps a dropzone to a classList
  */
-export function styleActiveDropZones(
-    dropZones: DropZoneIterable,
-    getStyles: GetStyles = () => ({}),
-    getClasses: GetClasses = () => []
-) {
+export function styleActiveDropZones(dropZones: DropZoneIterable, getStyles: GetStyles = () => ({}), getClasses: GetClasses = () => []) {
     dropZones.forEach(dz => {
         const styles = getStyles(dz);
         Object.keys(styles).forEach(style => {

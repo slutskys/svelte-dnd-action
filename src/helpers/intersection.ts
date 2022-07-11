@@ -6,7 +6,7 @@
  * @return {{top: number, left: number, bottom: number, right: number}}
  */
 
-import { Point } from '../internalTypes';
+import {Point} from "../internalTypes";
 
 export function getBoundingRectNoTransforms(el: HTMLElement): DOMRect {
     let ta: string[];

@@ -298,8 +298,8 @@ export function dndzone(node, options) {
                 focusedItem.contains(node) ||
                 config.dropFromOthersDisabled ||
                 (focusedDz && config.type !== dzToConfig.get(focusedDz).type)
-                ? -1
-                : 0;
+                    ? -1
+                    : 0;
         } else {
             node.tabIndex = config.zoneTabIndex;
         }
