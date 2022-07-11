@@ -9,8 +9,6 @@ import {Point, AbsoluteRect} from "../internalTypes";
  * @return {{top: number, left: number, bottom: number, right: number}}
  */
 export function getBoundingRectNoTransforms(el: HTMLElement): AbsoluteRect {
-    let ta: string[];
-
     const rect = el.getBoundingClientRect();
     const style = getComputedStyle(el);
     const tx = style.transform;
@@ -18,13 +16,13 @@ export function getBoundingRectNoTransforms(el: HTMLElement): AbsoluteRect {
     if (tx) {
         let sx: number, sy: number, dx: number, dy: number;
         if (tx.startsWith("matrix3d(")) {
-            ta = tx.slice(9, -1).split(/, /);
+            const ta = tx.slice(9, -1).split(/, /);
             sx = +ta[0];
             sy = +ta[5];
             dx = +ta[12];
             dy = +ta[13];
         } else if (tx.startsWith("matrix(")) {
-            ta = tx.slice(7, -1).split(/, /);
+            const ta = tx.slice(7, -1).split(/, /);
             sx = +ta[0];
             sy = +ta[3];
             dx = +ta[4];
