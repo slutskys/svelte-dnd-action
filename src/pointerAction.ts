@@ -499,7 +499,7 @@ export function dndzone(node: HTMLElement, options: Options) {
     };
 
     printDebug(() => [`dndzone good to go options: ${toString(options)}, config: ${toString(config)}`, {node}]);
-    const elToIdx = new Map();
+    const elToIdx = new Map<HTMLElement, number>();
 
     function addMaybeListeners() {
         window.addEventListener("mousemove", handleMouseMoveMaybeDragStart, {passive: false});
@@ -507,12 +507,14 @@ export function dndzone(node: HTMLElement, options: Options) {
         window.addEventListener("mouseup", handleFalseAlarm, {passive: false});
         window.addEventListener("touchend", handleFalseAlarm, {passive: false});
     }
+
     function removeMaybeListeners() {
         window.removeEventListener("mousemove", handleMouseMoveMaybeDragStart);
         window.removeEventListener("touchmove", handleMouseMoveMaybeDragStart);
         window.removeEventListener("mouseup", handleFalseAlarm);
         window.removeEventListener("touchend", handleFalseAlarm);
     }
+
     function handleFalseAlarm() {
         removeMaybeListeners();
         originalDragTarget = undefined;
@@ -575,13 +577,17 @@ export function dndzone(node: HTMLElement, options: Options) {
         printDebug(() => [`drag start config: ${toString(config)}`, originalDragTarget]);
         isWorkingOnPreviousDrag = true;
 
-        // initialising globals
-        const currentIdx = elToIdx.get(originalDragTarget);
-        originIndex = currentIdx;
-
         if (!originalDragTarget) {
           return;
         }
+
+        // initialising globals
+        const currentIdx = elToIdx.get(originalDragTarget);
+
+        if (typeof currentIdx !== 'number') {
+          return;
+        }
+        originIndex = currentIdx;
 
         originDropZone = originalDragTarget.parentElement ?? undefined;
 
@@ -765,6 +771,7 @@ export function dndzone(node: HTMLElement, options: Options) {
             elToIdx.set(draggableEl, idx);
         }
     }
+
     configure(options);
 
     return {
