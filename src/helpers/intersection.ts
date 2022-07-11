@@ -1,13 +1,13 @@
 // This is based off https://stackoverflow.com/questions/27745438/how-to-compute-getboundingclientrect-without-considering-transforms/57876601#57876601
 // It removes the transforms that are potentially applied by the flip animations
+
+import {Point, AbsoluteRect, Rect} from "../internalTypes";
+
 /**
  * Gets the bounding rect but removes transforms (ex: flip animation)
  * @param {HTMLElement} el
  * @return {{top: number, left: number, bottom: number, right: number}}
  */
-
-import {Point, AbsoluteRect, Rect} from "../internalTypes";
-
 export function getBoundingRectNoTransforms(el: HTMLElement): Rect {
     let ta: string[];
 
