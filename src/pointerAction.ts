@@ -110,22 +110,21 @@ function watchDraggedElement() {
 
     const dropZones = typeToDropZones.get(draggedElType);
 
-    if (!dropZones) {
-        return;
-    }
-
-    for (const dz of dropZones) {
-        dz.addEventListener(DRAGGED_ENTERED_EVENT_NAME, handleDraggedEntered);
-        dz.addEventListener(DRAGGED_LEFT_EVENT_NAME, handleDraggedLeft);
-        dz.addEventListener(DRAGGED_OVER_INDEX_EVENT_NAME, handleDraggedIsOverIndex);
-    }
     window.addEventListener(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, handleDrop);
-    // it is important that we don't have an interval that is faster than the flip duration because it can cause elements to jump bach and forth
-    const observationIntervalMs = Math.max(
-        MIN_OBSERVATION_INTERVAL_MS,
-        ...Array.from(dropZones.keys()).map(dz => dzToConfig.get(dz)?.dropAnimationDurationMs ?? 0)
-    );
-    observe(draggedEl, dropZones, observationIntervalMs * 1.07);
+    if (dropZones) {
+        for (const dz of dropZones) {
+            dz.addEventListener(DRAGGED_ENTERED_EVENT_NAME, handleDraggedEntered);
+            dz.addEventListener(DRAGGED_LEFT_EVENT_NAME, handleDraggedLeft);
+            dz.addEventListener(DRAGGED_OVER_INDEX_EVENT_NAME, handleDraggedIsOverIndex);
+        }
+
+        // it is important that we don't have an interval that is faster than the flip duration because it can cause elements to jump bach and forth
+        const observationIntervalMs = Math.max(
+            MIN_OBSERVATION_INTERVAL_MS,
+            ...Array.from(dropZones.keys()).map(dz => dzToConfig.get(dz)?.dropAnimationDurationMs ?? 0)
+        );
+        observe(draggedEl, dropZones, observationIntervalMs * 1.07);
+    }
 }
 function unWatchDraggedElement() {
     printDebug(() => "unwatching dragged element");
@@ -141,12 +140,15 @@ function unWatchDraggedElement() {
         return;
     }
 
-    for (const dz of dropZones) {
-        dz.removeEventListener(DRAGGED_ENTERED_EVENT_NAME, handleDraggedEntered);
-        dz.removeEventListener(DRAGGED_LEFT_EVENT_NAME, handleDraggedLeft);
-        dz.removeEventListener(DRAGGED_OVER_INDEX_EVENT_NAME, handleDraggedIsOverIndex);
-    }
     window.removeEventListener(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, handleDrop);
+
+    if (dropZones) {
+        for (const dz of dropZones) {
+            dz.removeEventListener(DRAGGED_ENTERED_EVENT_NAME, handleDraggedEntered);
+            dz.removeEventListener(DRAGGED_LEFT_EVENT_NAME, handleDraggedLeft);
+            dz.removeEventListener(DRAGGED_OVER_INDEX_EVENT_NAME, handleDraggedIsOverIndex);
+        }
+    }
     unobserve();
 }
 
@@ -187,11 +189,7 @@ function handleDraggedEntered(e: DraggedEnteredEvent) {
     items = items.filter(item => item[ITEM_ID_KEY] !== shadowElData?.[ITEM_ID_KEY]);
     printDebug(() => `dragged entered items ${toString(items)}`);
 
-    if (!draggedElData || !originDropZone) {
-        return;
-    }
-
-    if (draggedElData && originDropZone && originDropZone !== e.currentTarget) {
+    if (draggedElData && originDropZone && originDropZone !== currentTarget) {
         const originZoneItems = dzToConfig.get(originDropZone)?.items ?? [];
         const newOriginZoneItems = originZoneItems.filter(item => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
         dispatchConsiderEvent(originDropZone, newOriginZoneItems, {
@@ -212,12 +210,13 @@ function handleDraggedEntered(e: DraggedEnteredEvent) {
     const shadowElIdx = isProximityBased && index === currentTarget.children.length - 1 ? index + 1 : index;
     shadowElDropZone = currentTarget;
 
-    if (typeof shadowElIdx !== "number" || shadowElData === undefined) {
-        return;
+    if (typeof shadowElIdx === "number" && shadowElData) {
+        items.splice(shadowElIdx, 0, shadowElData);
     }
 
-    items.splice(shadowElIdx, 0, shadowElData);
-    dispatchConsiderEvent(currentTarget, items, {trigger: TRIGGERS.DRAGGED_ENTERED, id: draggedElData[ITEM_ID_KEY], source: SOURCES.POINTER});
+    if (draggedElData) {
+        dispatchConsiderEvent(currentTarget, items, {trigger: TRIGGERS.DRAGGED_ENTERED, id: draggedElData[ITEM_ID_KEY], source: SOURCES.POINTER});
+    }
 }
 
 function handleDraggedLeft(e: DraggedLeftEvent) {
@@ -246,7 +245,6 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
         printDebug(() => "drop is currently disabled");
         return;
     }
-
     const shadowElIdx = findShadowElementIdx(items);
     const shadowItem = items.splice(shadowElIdx, 1)[0];
     shadowElDropZone = undefined;
@@ -255,7 +253,11 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
 
     if (e.detail.type === DRAGGED_LEFT_TYPES.OUTSIDE_OF_ANY) {
         isOutsideAnyDz = true;
-    } else if (e.detail.theOtherDz !== originDropZone && e.detail.theOtherDz instanceof HTMLElement) {
+    } else if (
+        e.detail.type === DRAGGED_LEFT_TYPES.LEFT_FOR_ANOTHER &&
+        e.detail.theOtherDz !== originDropZone &&
+        e.detail.theOtherDz instanceof HTMLElement
+    ) {
         const otherDzConig = dzToConfig.get(e.detail.theOtherDz);
 
         if (otherDzConig) {
@@ -502,14 +504,12 @@ export function dndzone(node: HTMLElement, options: Options) {
         window.addEventListener("mouseup", handleFalseAlarm, {passive: false});
         window.addEventListener("touchend", handleFalseAlarm, {passive: false});
     }
-
     function removeMaybeListeners() {
         window.removeEventListener("mousemove", handleMouseMoveMaybeDragStart);
         window.removeEventListener("touchmove", handleMouseMoveMaybeDragStart);
         window.removeEventListener("mouseup", handleFalseAlarm);
         window.removeEventListener("touchend", handleFalseAlarm);
     }
-
     function handleFalseAlarm() {
         removeMaybeListeners();
         originalDragTarget = undefined;
@@ -543,27 +543,22 @@ export function dndzone(node: HTMLElement, options: Options) {
             return;
         }
 
-        if (target !== currentTarget && target instanceof HTMLInputElement) {
+        if (target !== currentTarget && target instanceof HTMLInputElement && target.isContentEditable) {
             printDebug(() => "won't initiate drag on a nested input element");
             return;
         }
-
         // prevents responding to any button but left click which equals 0 (which is falsy)
         if ("button" in e && e.button) {
             printDebug(() => `ignoring none left click button: ${e.button}`);
             return;
         }
-
         if (isWorkingOnPreviousDrag) {
             printDebug(() => "cannot start a new drag before finalizing previous one");
             return;
         }
-
         e.stopPropagation();
-
         dragStartMousePosition = getPointFromEvent(e);
         currentMousePosition = {...dragStartMousePosition};
-
         originalDragTarget = currentTarget;
         addMaybeListeners();
     }
@@ -617,21 +612,22 @@ export function dndzone(node: HTMLElement, options: Options) {
 
         // We will keep the original dom node in the dom because touch events keep firing on it, we want to re-add it after the framework removes it
         function keepOriginalElementInDom() {
-            if (draggedEl && !draggedEl.parentElement) {
-                originDropZoneRoot.appendChild(draggedEl);
-                // to prevent the outline from disappearing
-                draggedEl.focus();
-                watchDraggedElement();
+            if (draggedEl) {
+                if (!draggedEl.parentElement) {
+                    originDropZoneRoot.appendChild(draggedEl);
+                    // to prevent the outline from disappearing
+                    draggedEl.focus();
+                    watchDraggedElement();
 
-                if (originalDragTarget) {
-                    hideOriginalDragTarget(originalDragTarget);
-                    originDropZoneRoot.appendChild(originalDragTarget);
+                    if (originalDragTarget) {
+                        hideOriginalDragTarget(originalDragTarget);
+                        originDropZoneRoot.appendChild(originalDragTarget);
+                    }
+                } else {
+                    window.requestAnimationFrame(keepOriginalElementInDom);
                 }
-            } else {
-                window.requestAnimationFrame(keepOriginalElementInDom);
             }
         }
-
         window.requestAnimationFrame(keepOriginalElementInDom);
 
         if (type) {
@@ -713,9 +709,7 @@ export function dndzone(node: HTMLElement, options: Options) {
         }
 
         dzToConfig.set(node, newConfig);
-
         const shadowElIdx = findShadowElementIdx(newConfig.items);
-
         for (let idx = 0; idx < node.children.length; idx++) {
             const draggableEl = node.children[idx];
 
@@ -746,12 +740,10 @@ export function dndzone(node: HTMLElement, options: Options) {
                 draggableEl.addEventListener("touchstart", handleMouseDown);
                 elToMouseDownListener.set(draggableEl, handleMouseDown);
             }
-
             // updating the idx
             elToIdx.set(draggableEl, idx);
         }
     }
-
     configure(config);
 
     return {
@@ -762,7 +754,6 @@ export function dndzone(node: HTMLElement, options: Options) {
             configure(newConfig, config);
             config = newConfig;
         },
-
         destroy: () => {
             printDebug(() => "pointer dndzone will destroy");
             unregisterDropZone(node, config.type);
