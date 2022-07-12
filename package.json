@@ -8,7 +8,7 @@
         "test": "cypress run",
         "lint": "eslint .",
         "format": "prettier --write .",
-        "clean": "rm -r ./dist",
+        "clean": "rm -rf ./dist",
         "build": "yarn clean && yarn lint && yarn tsc && yarn build:esm && yarn build:umd",
         "build:esm": "rollup dist/index.js --file=dist/index.mjs --format esm --silent",
         "build:umd": "rollup dist/index.js --file=dist/index.umd.js --format umd --name=DndAction --silent",
