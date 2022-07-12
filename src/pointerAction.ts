@@ -763,6 +763,8 @@ export function dndzone(node: HTMLElement, options: Options) {
         }
     }
 
+    configure(config);
+
     return {
         update: (newOptions: Options) => {
             printDebug(() => `pointer dndzone will update newOptions: ${toString(newOptions)}`);
