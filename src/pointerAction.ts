@@ -484,7 +484,7 @@ function getInternalConfig(options: Options): InternalConfig {
         type: options.type ?? DEFAULT_DROP_ZONE_TYPE,
         dragDisabled: options.dragDisabled ?? false,
         morphDisabled: options.morphDisabled ?? false,
-        dropFromOthersDisabled: options.morphDisabled ?? false,
+        dropFromOthersDisabled: options.dropFromOthersDisabled ?? false,
         dropTargetStyle: options.dropTargetStyle ?? DEFAULT_DROP_TARGET_STYLE,
         dropTargetClasses: options.dropTargetClasses ?? [],
         transformDraggedElement: options.transformDraggedElement ?? (() => {}),
