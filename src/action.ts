@@ -2,7 +2,7 @@ import {dndzone as pointerDndZone} from "./pointerAction";
 import {dndzone as keyboardDndZone} from "./keyboardAction";
 import {ITEM_ID_KEY} from "./constants";
 import {toString} from "./helpers/util";
-import { Options } from './types';
+import {Options} from "./types";
 
 /**
  * A custom action to turn any container to a dnd zone and all of its direct children to draggables

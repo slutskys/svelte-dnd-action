@@ -1,23 +1,31 @@
 import {makeScroller} from "./scroller";
 import {printDebug} from "../constants";
 import {resetIndexesCache} from "./listUtil";
+import {getPointFromEvent} from "./point";
 
 const INTERVAL_MS = 300;
-let mousePosition;
+
+type MousePosition = {
+    x: number;
+    y: number;
+};
+
+let mousePosition: MousePosition | undefined;
 
 /**
  * Do not use this! it is visible for testing only until we get over the issue Cypress not triggering the mousemove listeners
  * // TODO - make private (remove export)
  * @param {{clientX: number, clientY: number}} e
  */
-export function updateMousePosition(e) {
-    const c = e.touches ? e.touches[0] : e;
-    mousePosition = {x: c.clientX, y: c.clientY};
+function updateMousePosition(e: MouseEvent | TouchEvent) {
+    mousePosition = getPointFromEvent(e);
 }
-const {scrollIfNeeded, resetScrolling} = makeScroller();
-let next;
 
-function loop() {
+const {scrollIfNeeded, resetScrolling} = makeScroller();
+
+let next: number | undefined;
+
+function loop(): void {
     if (mousePosition) {
         const scrolled = scrollIfNeeded(mousePosition, document.documentElement);
         if (scrolled) resetIndexesCache();
@@ -28,7 +36,7 @@ function loop() {
 /**
  * will start watching the mouse pointer and scroll the window if it goes next to the edges
  */
-export function armWindowScroller() {
+export function armWindowScroller(): void {
     printDebug(() => "arming window scroller");
     window.addEventListener("mousemove", updateMousePosition);
     window.addEventListener("touchmove", updateMousePosition);
@@ -38,7 +46,7 @@ export function armWindowScroller() {
 /**
  * will stop watching the mouse pointer and won't scroll the window anymore
  */
-export function disarmWindowScroller() {
+export function disarmWindowScroller(): void {
     printDebug(() => "disarming window scroller");
     window.removeEventListener("mousemove", updateMousePosition);
     window.removeEventListener("touchmove", updateMousePosition);

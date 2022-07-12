@@ -10,7 +10,7 @@ const ID_TO_INSTRUCTION = {
 };
 
 const ALERT_DIV_ID = "dnd-action-aria-alert";
-let alertsDiv;
+let alertsDiv: HTMLDivElement;
 
 function initAriaOnBrowser() {
     // setting the dynamic alerts
@@ -47,7 +47,7 @@ export function initAria() {
     }
     return {...INSTRUCTION_IDs};
 }
-function instructionToHiddenDiv(id, txt) {
+function instructionToHiddenDiv(id: string, txt: string) {
     const div = document.createElement("div");
     div.id = id;
     div.innerHTML = `<p>${txt}</p>`;
@@ -61,7 +61,7 @@ function instructionToHiddenDiv(id, txt) {
  * Will make the screen reader alert the provided text to the user
  * @param {string} txt
  */
-export function alertToScreenReader(txt) {
+export function alertToScreenReader(txt: string) {
     alertsDiv.innerHTML = "";
     const alertText = document.createTextNode(txt);
     alertsDiv.appendChild(alertText);
