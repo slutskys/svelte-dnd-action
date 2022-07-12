@@ -9,6 +9,7 @@ import {
     TRIGGERS
 } from "./constants";
 import {observe, unobserve} from "./helpers/observer";
+import {getPointFromEvent} from "./helpers/point";
 import {armWindowScroller, disarmWindowScroller} from "./helpers/windowScroller";
 import {
     createDraggedElementFrom,
@@ -322,14 +323,6 @@ function handleDraggedIsOverIndex(e: DraggedOverIndexEvent) {
         items.splice(shadowElIdx, 1);
         items.splice(index, 0, shadowElData);
         dispatchConsiderEvent(currentTarget, items, {trigger: TRIGGERS.DRAGGED_OVER_INDEX, id: draggedElData[ITEM_ID_KEY], source: SOURCES.POINTER});
-    }
-}
-
-function getPointFromEvent(e: MouseEvent | TouchEvent): Point {
-    if ("touches" in e) {
-        return {x: e.touches[0].clientX, y: e.touches[0].clientY};
-    } else {
-        return {x: e.clientX, y: e.clientY};
     }
 }
 

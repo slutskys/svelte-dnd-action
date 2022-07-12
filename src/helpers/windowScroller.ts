@@ -1,6 +1,7 @@
 import {makeScroller} from "./scroller";
 import {printDebug} from "../constants";
 import {resetIndexesCache} from "./listUtil";
+import {getPointFromEvent} from "./point";
 
 const INTERVAL_MS = 300;
 
@@ -16,16 +17,8 @@ let mousePosition: MousePosition | undefined;
  * // TODO - make private (remove export)
  * @param {{clientX: number, clientY: number}} e
  */
-export function updateMousePosition(e: MouseEvent | TouchEvent) {
-    let c: {clientX: number; clientY: number};
-
-    if ("touches" in e) {
-        c = e.touches[0];
-    } else {
-        c = e;
-    }
-
-    mousePosition = {x: c.clientX, y: c.clientY};
+function updateMousePosition(e: MouseEvent | TouchEvent) {
+    mousePosition = getPointFromEvent(e);
 }
 
 const {scrollIfNeeded, resetScrolling} = makeScroller();
