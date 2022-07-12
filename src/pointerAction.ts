@@ -15,7 +15,7 @@ import {armWindowScroller, disarmWindowScroller} from "./helpers/windowScroller"
 import {
     createDraggedElementFrom,
     decorateShadowEl,
-    hideOriginalDragTarget,
+    hideElement,
     morphDraggedElementToBeLike,
     moveDraggedElementToWasDroppedState,
     preventShrinking,
@@ -55,6 +55,7 @@ let isWorkingOnPreviousDrag = false;
 let finalizingPreviousDrag = false;
 let unlockOriginDzMinDimensions: (() => void) | undefined;
 let isDraggedOutsideOfAnyDz = false;
+let scheduledForRemovalAfterDrop: {dz: HTMLElement; destroy(): void}[] = [];
 
 // a map from type to a set of drop-zones
 const typeToDropZones = new Map<string, Set<HTMLElement>>();
@@ -446,10 +447,27 @@ function animateDraggedToFinalPosition(shadowElIdx: number, callback: () => void
     }
 }
 
+function scheduleDZForRemovalAfterDrop(dz: HTMLElement, destroy: () => void) {
+    scheduledForRemovalAfterDrop.push({dz, destroy});
+    window.requestAnimationFrame(() => {
+        hideElement(dz);
+        document.body.appendChild(dz);
+    });
+}
+
 /* cleanup */
 function cleanupPostDrop() {
     draggedEl?.remove();
     originalDragTarget?.remove();
+
+    if (scheduledForRemovalAfterDrop.length) {
+        printDebug(() => ["will destroy zones that were removed during drag", scheduledForRemovalAfterDrop]);
+        scheduledForRemovalAfterDrop.forEach(({dz, destroy}) => {
+            destroy();
+            dz.remove();
+        });
+        scheduledForRemovalAfterDrop = [];
+    }
     draggedEl = undefined;
     originalDragTarget = undefined;
     draggedElData = undefined;
@@ -467,6 +485,7 @@ function cleanupPostDrop() {
 }
 
 export function dndzone(node: HTMLElement, options: Options) {
+    let initialized = false;
     let config = getInternalConfig(options);
 
     printDebug(() => [`dndzone good to go options: ${toString(options)}, config: ${toString(config)}`, {node}]);
@@ -594,7 +613,7 @@ export function dndzone(node: HTMLElement, options: Options) {
                     watchDraggedElement();
 
                     if (originalDragTarget) {
-                        hideOriginalDragTarget(originalDragTarget);
+                        hideElement(originalDragTarget);
                         originDropZoneRoot.appendChild(originalDragTarget);
                     }
                 } else {
@@ -646,7 +665,7 @@ export function dndzone(node: HTMLElement, options: Options) {
 
         registerDropZone(node, newConfig.type);
 
-        if (isWorkingOnPreviousDrag && !finalizingPreviousDrag) {
+        if (initialized && isWorkingOnPreviousDrag && !finalizingPreviousDrag) {
             const stylesChanged = !oldConfig || areObjectsShallowEqual(oldConfig.dropTargetStyle, newConfig.dropTargetStyle);
             const classesChanged = !oldConfig || areArraysShallowEqualSameOrder(oldConfig.dropTargetClasses, newConfig.dropTargetClasses);
 
@@ -666,7 +685,7 @@ export function dndzone(node: HTMLElement, options: Options) {
 
         // realtime update for dropFromOthersDisabled
         // won't have a drag active on first run of this function, so can skip if oldConfig is not defined
-        if (isWorkingOnPreviousDrag && oldConfig && oldConfig.dropFromOthersDisabled !== newConfig.dropFromOthersDisabled) {
+        if (initialized && isWorkingOnPreviousDrag && oldConfig && oldConfig.dropFromOthersDisabled !== newConfig.dropFromOthersDisabled) {
             if (newConfig.dropFromOthersDisabled) {
                 styleInactiveDropZones(
                     [node],
@@ -716,6 +735,10 @@ export function dndzone(node: HTMLElement, options: Options) {
             }
             // updating the idx
             elToIdx.set(draggableEl, idx);
+
+            if (!initialized) {
+                initialized = true;
+            }
         }
     }
     configure(config);
@@ -729,9 +752,23 @@ export function dndzone(node: HTMLElement, options: Options) {
             config = newConfig;
         },
         destroy: () => {
-            printDebug(() => "pointer dndzone will destroy");
-            unregisterDropZone(node, config.type);
-            dzToConfig.delete(node);
+            function destroyDz() {
+                printDebug(() => "pointer dndzone will destroy");
+                const type = dzToConfig.get(node)?.type;
+
+                if (type) {
+                    unregisterDropZone(node, type);
+                }
+
+                dzToConfig.delete(node);
+            }
+
+            if (isWorkingOnPreviousDrag) {
+                printDebug(() => "pointer dndzone will be scheduled for destruction");
+                scheduleDZForRemovalAfterDrop(node, destroyDz);
+            } else {
+                destroyDz();
+            }
         }
     };
 }

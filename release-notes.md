@@ -1,5 +1,25 @@
 ## Svelte Dnd Action - Release Notes
 
+### [0.9.19](https://github.com/isaacHagoel/svelte-dnd-action/pull/382)
+
+enhancement: DndEvent now allows the use of generics.
+
+### [0.9.18](https://github.com/isaacHagoel/svelte-dnd-action/pull/365)
+
+fix: if a drop zone is removed mid-drag it was causing the lib to throw errors
+
+### [0.9.17](https://github.com/isaacHagoel/svelte-dnd-action/pull/320)
+
+fix: dropdowns (select elements) will now maintain their value during drag
+
+### [0.9.16](https://github.com/isaacHagoel/svelte-dnd-action/pull/356)
+
+fixed a bug that made dropTargetClasses and dropTarget styles work incorrectly when applied to nested zones
+
+### [0.9.15](https://github.com/isaacHagoel/svelte-dnd-action/pull/350)
+
+made the aria support more friendly for multi-page apps (ex: SvelteKit) by having the lib lazy init and clean up the aria divs when the last instance is removed
+
 ### [0.9.14](https://github.com/isaacHagoel/svelte-dnd-action/pull/340/)
 
 fixed an issue with items sometimes not making way for the dragged element after autoscroll

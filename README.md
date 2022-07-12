@@ -206,7 +206,7 @@ If you want to implement your own custom screen-reader alerts, roles and instruc
 -   The host component must refresh the items that are passed in to the custom-action when receiving consider and finalize events (do not omit any handler).
 -   FYI, the library assumes it is okay to add a temporary item to the items list in any of the dnd-zones while an element is dragged around.
 -   If you want dragged items to be able to scroll the container, make sure the scroll-container (the element with overflow:scroll) is the dnd-zone (the element decorated with this custom action)
--   Svelte's built-in transitions might not play nice with this library. Luckily, it is an easy issue to work around. There are examples below.
+-   Svelte's built-in transitions might not play nice with this library. Luckily, it is an easy issue to work around. There are examples above.
 
 ### Overriding the item id key name
 
@@ -283,6 +283,34 @@ Then you will be able to use the library with type safety as follows (Typescript
     <div animate:flip="{{duration:flipDurationMs}}">{item.title}</div>
     {/each}
 </section>
+```
+
+#### Custom types with `DndEvent<T>`
+
+You can use generics to set the type of `items` you are expecting in `DndEvent`. Simply add a type to it like so: `DndEvent<Dog>`. For example:
+
+```html
+<script lang="ts">
+    import {dndzone} from "svelte-dnd-action";
+    import {flip} from "svelte/animate";
+
+    interface Dog {
+        id: number;
+        name: string;
+        breed: string;
+    }
+
+    function handleSort(e: CustomEvent<DndEvent<Dog>>) {
+        //e.detail.items now evaluates to type Dog.
+        items = e.detail.items;
+    }
+
+    let items: Dog[] = [
+        {id: 1, name: "Fido", breed: "bulldog"},
+        {id: 2, name: "Spot", breed: "labrador"},
+        {id: 3, name: "Jacky", breed: "golden retriever"}
+    ];
+</script>
 ```
 
 ### Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/isaacHagoel/svelte-dnd-action/issues)
