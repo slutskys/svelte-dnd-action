@@ -74,7 +74,8 @@ function registerDropZone(dropZoneEl: HTMLElement, type: string) {
 
     const dropZoneSet = typeToDropZones.get(type);
 
-    if (dropZoneSet && dropZoneSet.has(dropZoneEl)) {
+    if (dropZoneSet && !dropZoneSet.has(dropZoneEl)) {
+        dropZoneSet.add(dropZoneEl); // dropZoneSet is reference, will add dropZoneEl to set in map
         incrementActiveDropZoneCount();
     }
 }
@@ -89,9 +90,7 @@ function unregisterDropZone(dropZoneEl: HTMLElement, type: string) {
     dropZoneSet.delete(dropZoneEl);
     decrementActiveDropZoneCount();
 
-    if (dropZoneSet.size > 0) {
-        typeToDropZones.set(type, dropZoneSet);
-    } else {
+    if (dropZoneSet.size === 0) {
         typeToDropZones.delete(type);
     }
 }
@@ -120,20 +119,14 @@ function watchDraggedElement() {
         dz.addEventListener(DRAGGED_LEFT_EVENT_NAME, handleDraggedLeft);
         dz.addEventListener(DRAGGED_OVER_INDEX_EVENT_NAME, handleDraggedIsOverIndex);
     }
-
     window.addEventListener(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, handleDrop);
-
     // it is important that we don't have an interval that is faster than the flip duration because it can cause elements to jump bach and forth
     const observationIntervalMs = Math.max(
         MIN_OBSERVATION_INTERVAL_MS,
-        ...Array.from(dropZones.keys())
-            .map(dz => dzToConfig.get(dz)?.dropAnimationDurationMs)
-            .filter((ms): ms is number => typeof ms === "number")
+        ...Array.from(dropZones.keys()).map(dz => dzToConfig.get(dz)?.dropAnimationDurationMs ?? 0)
     );
-
     observe(draggedEl, dropZones, observationIntervalMs * 1.07);
 }
-
 function unWatchDraggedElement() {
     printDebug(() => "unwatching dragged element");
     disarmWindowScroller();
@@ -153,7 +146,6 @@ function unWatchDraggedElement() {
         dz.removeEventListener(DRAGGED_LEFT_EVENT_NAME, handleDraggedLeft);
         dz.removeEventListener(DRAGGED_OVER_INDEX_EVENT_NAME, handleDraggedIsOverIndex);
     }
-
     window.removeEventListener(DRAGGED_LEFT_DOCUMENT_EVENT_NAME, handleDrop);
     unobserve();
 }
@@ -162,7 +154,6 @@ function unWatchDraggedElement() {
 function findShadowPlaceHolderIdx(items: Item[]): number {
     return items.findIndex(item => item[ITEM_ID_KEY] === SHADOW_PLACEHOLDER_ITEM_ID);
 }
-
 function findShadowElementIdx(items: Item[]): number {
     // checking that the id is not the placeholder's for Dragula like usecases
     return items.findIndex(item => !!item[SHADOW_ITEM_MARKER_PROPERTY_NAME] && item[ITEM_ID_KEY] !== SHADOW_PLACEHOLDER_ITEM_ID);
@@ -191,11 +182,9 @@ function handleDraggedEntered(e: DraggedEnteredEvent) {
         printDebug(() => "ignoring dragged entered because drop is currently disabled");
         return;
     }
-
     isDraggedOutsideOfAnyDz = false;
     // this deals with another race condition. in rare occasions (super rapid operations) the list hasn't updated yet
     items = items.filter(item => item[ITEM_ID_KEY] !== shadowElData?.[ITEM_ID_KEY]);
-
     printDebug(() => `dragged entered items ${toString(items)}`);
 
     if (!draggedElData || !originDropZone) {
