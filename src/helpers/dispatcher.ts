@@ -1,4 +1,12 @@
-import {DraggedEnteredEvent, DraggedLeftDocumentEvent, DraggedLeftEvent, DraggedOverIndexEvent, IndexObj} from "../internalTypes";
+import {
+    ConsiderEvent,
+    DraggedEnteredEvent,
+    DraggedLeftDocumentEvent,
+    DraggedLeftEvent,
+    DraggedOverIndexEvent,
+    FinalizeEvent,
+    IndexObj
+} from "../internalTypes";
 import {DndEventInfo, Item} from "../types";
 
 // external events
@@ -15,11 +23,10 @@ const CONSIDER_EVENT_NAME = "consider";
  * @param {Info} info
  */
 export function dispatchFinalizeEvent(el: Node, items: Item[], info: DndEventInfo) {
-    el.dispatchEvent(
-        new CustomEvent(FINALIZE_EVENT_NAME, {
-            detail: {items, info}
-        })
-    );
+    const event: FinalizeEvent = new CustomEvent(FINALIZE_EVENT_NAME, {
+        detail: {items, info}
+    });
+    el.dispatchEvent(event);
 }
 
 /**
@@ -29,11 +36,10 @@ export function dispatchFinalizeEvent(el: Node, items: Item[], info: DndEventInf
  * @param {Info} info
  */
 export function dispatchConsiderEvent(el: Node, items: Item[], info: DndEventInfo) {
-    el.dispatchEvent(
-        new CustomEvent(CONSIDER_EVENT_NAME, {
-            detail: {items, info}
-        })
-    );
+    const event: ConsiderEvent = new CustomEvent(CONSIDER_EVENT_NAME, {
+        detail: {items, info}
+    });
+    el.dispatchEvent(event);
 }
 
 // internal events
