@@ -75,16 +75,7 @@ function validateOptions(options: Options) {
     if (dropTargetClasses && !Array.isArray(dropTargetClasses)) {
         throw new Error(`dropTargetClasses should be an array but instead it is a ${typeof dropTargetClasses}, ${toString(dropTargetClasses)}`);
     }
-    if (zoneTabIndex && !isInt(zoneTabIndex)) {
-        throw new Error(`zoneTabIndex should be a number but instead it is a ${typeof zoneTabIndex}, ${toString(zoneTabIndex)}`);
+    if (zoneTabIndex && !Number.isInteger(zoneTabIndex)) {
+        throw new Error(`zoneTabIndex should be a integer but instead it is a ${typeof zoneTabIndex}, ${toString(zoneTabIndex)}`);
     }
-}
-
-function isInt(value: number): boolean {
-    return (
-        !isNaN(value) &&
-        (function (x) {
-            return (x | 0) === x;
-        })(parseFloat(value.toString()))
-    );
 }
