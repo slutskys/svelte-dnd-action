@@ -8,7 +8,6 @@ import {
     dispatchDraggedElementIsOverIndex
 } from "./dispatcher";
 import {makeScroller} from "./scroller";
-import {getDepth} from "./util";
 import {printDebug} from "../constants";
 import {Point} from "../internalTypes";
 
@@ -29,8 +28,28 @@ export function observe(draggedEl: HTMLElement, dropZones: Set<HTMLElement>, int
     let lastIndexFound: number | undefined;
     let lastIsDraggedInADropZone = false;
     let lastCentrePositionOfDragged: Point | undefined;
+
     // We are sorting to make sure that in case of nested zones of the same type the one "on top" is considered first
-    const dropZonesFromDeepToShallow = Array.from(dropZones).sort((dz1, dz2) => getDepth(dz2) - getDepth(dz1));
+    const sortedDropZones = Array.from(dropZones).sort((a, b) => {
+      const relativePos = a.compareDocumentPosition(b);
+
+      const aContainsB = relativePos & Node.DOCUMENT_POSITION_CONTAINED_BY;
+      const bContainsA = relativePos & Node.DOCUMENT_POSITION_CONTAINS;
+
+      if (aContainsB) {
+        // since b is "on top", sort it first by returning positive number
+        return 1;
+      } else if (bContainsA) {
+        // since a is "on top", sort it first by returning negative number
+        return -1;
+      }
+
+      // otherwise fall back to z-index
+      const aZIndex = parseFloat(a.style.zIndex || '0');
+      const bZIndex = parseFloat(b.style.zIndex || '0');
+
+      return bZIndex - aZIndex;
+    })
 
     /**
      * The main function in this module. Tracks where everything is/ should be a take the actions
@@ -62,7 +81,7 @@ export function observe(draggedEl: HTMLElement, dropZones: Set<HTMLElement>, int
         // this is a simple algorithm, potential improvement: first look at lastDropZoneFound
         let isDraggedInADropZone = false;
 
-        for (const dz of dropZonesFromDeepToShallow) {
+        for (const dz of sortedDropZones) {
             if (scrolled && lastDropZoneFound) {
                 resetIndexesCacheForDz(lastDropZoneFound);
             }
