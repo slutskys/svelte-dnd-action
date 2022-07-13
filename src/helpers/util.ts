@@ -7,25 +7,6 @@ export function toString(object: unknown): string {
 }
 
 /**
- * Finds the depth of the given node in the DOM tree
- * @param {HTMLElement} node
- * @return {number} - the depth of the node
- */
-export function getDepth(node: HTMLElement): number {
-    if (!node) {
-        throw new Error("cannot get depth of a falsy node");
-    }
-    return _getDepth(node, 0);
-}
-
-function _getDepth(node: HTMLElement, countSoFar = 0): number {
-    if (!node.parentElement) {
-        return countSoFar - 1;
-    }
-    return _getDepth(node.parentElement, countSoFar + 1);
-}
-
-/**
  * A simple util to shallow compare objects quickly, it doesn't validate the arguments so pass objects in
  * @param {Object} objA
  * @param {Object} objB
