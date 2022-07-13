@@ -65,4 +65,7 @@ export type InternalConfig = {
     transformDraggedElement: TransformDraggedElementFunction;
     autoAriaDisabled?: boolean;
     centreDraggedOnCursor: boolean;
+    zoneTabIndex: number;
+};
+
 };

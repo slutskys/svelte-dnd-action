@@ -18,6 +18,7 @@ export function getInternalConfig(options: Options): InternalConfig {
         dropTargetStyle: options.dropTargetStyle ?? DEFAULT_DROP_TARGET_STYLE,
         dropTargetClasses: options.dropTargetClasses ?? [],
         transformDraggedElement: options.transformDraggedElement ?? (() => {}),
-        centreDraggedOnCursor: options.centreDraggedOnCursor ?? false
+        centreDraggedOnCursor: options.centreDraggedOnCursor ?? false,
+        zoneTabIndex: options.zoneTabIndex ?? 0
     };
 }
