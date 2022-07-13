@@ -1,13 +1,14 @@
 import {isOnServer} from "../constants";
+import { InstructionIDs } from '../internalTypes';
 
-const INSTRUCTION_IDs = {
+const INSTRUCTION_IDs: InstructionIDs = {
     DND_ZONE_ACTIVE: "dnd-zone-active",
     DND_ZONE_DRAG_DISABLED: "dnd-zone-drag-disabled"
 };
 const ID_TO_INSTRUCTION = {
     [INSTRUCTION_IDs.DND_ZONE_ACTIVE]: "Tab to one the items and press space-bar or enter to start dragging it",
     [INSTRUCTION_IDs.DND_ZONE_DRAG_DISABLED]: "This is a disabled drag and drop list"
-};
+} as const;
 
 const ALERT_DIV_ID = "dnd-action-aria-alert";
 let alertsDiv: HTMLDivElement | undefined;
@@ -42,14 +43,17 @@ function initAriaOnBrowser() {
  * Initializes the static aria instructions so they can be attached to zones
  * @return {{DND_ZONE_ACTIVE: string, DND_ZONE_DRAG_DISABLED: string} | null} - the IDs for static aria instruction (to be used via aria-describedby) or null on the server
  */
-export function initAria() {
-    if (isOnServer) return null;
+export function initAria(): InstructionIDs | undefined {
+    if (isOnServer) {
+        return;
+    }
     if (document.readyState === "complete") {
         initAriaOnBrowser();
     } else {
         window.addEventListener("DOMContentLoaded", initAriaOnBrowser);
     }
-    return {...INSTRUCTION_IDs};
+
+  return INSTRUCTION_IDs;
 }
 
 /**

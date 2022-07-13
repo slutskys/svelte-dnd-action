@@ -68,4 +68,7 @@ export type InternalConfig = {
     zoneTabIndex: number;
 };
 
+export type InstructionIDs = {
+  readonly DND_ZONE_ACTIVE: 'dnd-zone-active';
+  readonly DND_ZONE_DRAG_DISABLED: 'dnd-zone-drag-disabled';
 };
