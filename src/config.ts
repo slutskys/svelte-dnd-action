@@ -19,6 +19,7 @@ export function getInternalConfig(options: Options): InternalConfig {
         dropTargetClasses: options.dropTargetClasses ?? [],
         transformDraggedElement: options.transformDraggedElement ?? (() => {}),
         centreDraggedOnCursor: options.centreDraggedOnCursor ?? false,
-        zoneTabIndex: options.zoneTabIndex ?? 0
+        zoneTabIndex: options.zoneTabIndex ?? 0,
+        scrollableContainerElement: options.scrollableContainerElement
     };
 }

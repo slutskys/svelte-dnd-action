@@ -25,22 +25,22 @@ const {scrollIfNeeded, resetScrolling} = makeScroller();
 
 let next: number | undefined;
 
-function loop(): void {
+function loop(containerEl: HTMLElement | undefined): void {
     if (mousePosition) {
-        const scrolled = scrollIfNeeded(mousePosition, document.documentElement);
+        const scrolled = scrollIfNeeded(mousePosition, containerEl ?? document.documentElement);
         if (scrolled) resetIndexesCache();
     }
-    next = window.setTimeout(loop, INTERVAL_MS);
+    next = window.setTimeout(() => loop(containerEl), INTERVAL_MS);
 }
 
 /**
  * will start watching the mouse pointer and scroll the window if it goes next to the edges
  */
-export function armWindowScroller(): void {
+export function armWindowScroller(containerEl: HTMLElement | undefined): void {
     printDebug(() => "arming window scroller");
     window.addEventListener("mousemove", updateMousePosition);
     window.addEventListener("touchmove", updateMousePosition);
-    loop();
+    loop(containerEl);
 }
 
 /**

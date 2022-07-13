@@ -66,6 +66,7 @@ export type InternalConfig = {
     autoAriaDisabled?: boolean;
     centreDraggedOnCursor: boolean;
     zoneTabIndex: number;
+    scrollableContainerElement?: HTMLElement;
 };
 
 export type InstructionIDs = {

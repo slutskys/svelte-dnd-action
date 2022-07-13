@@ -95,9 +95,9 @@ function unregisterDropZone(dropZoneEl: HTMLElement, type: string) {
 }
 
 /* functions to manage observing the dragged element and trigger custom drag-events */
-function watchDraggedElement() {
+function watchDraggedElement(containerEl: HTMLElement | undefined) {
     printDebug(() => "watching dragged element");
-    armWindowScroller();
+    armWindowScroller(containerEl);
 
     if (!draggedEl) {
         return;
@@ -610,7 +610,7 @@ export function dndzone(node: HTMLElement, options: Options) {
                     originDropZoneRoot.appendChild(draggedEl);
                     // to prevent the outline from disappearing
                     draggedEl.focus();
-                    watchDraggedElement();
+                    watchDraggedElement(config.scrollableContainerElement);
 
                     if (originalDragTarget) {
                         hideElement(originalDragTarget);

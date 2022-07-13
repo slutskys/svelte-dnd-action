@@ -23,6 +23,7 @@ export interface Options {
     autoAriaDisabled?: boolean;
     centreDraggedOnCursor?: boolean;
     dropAnimationDurationMs?: number;
+    scrollableContainerElement?: HTMLElement;
 }
 
 export interface DndEventInfo {
