@@ -1,5 +1,5 @@
 import {isOnServer} from "../constants";
-import { InstructionIDs } from '../internalTypes';
+import {InstructionIDs} from "../internalTypes";
 
 const INSTRUCTION_IDs: InstructionIDs = {
     DND_ZONE_ACTIVE: "dnd-zone-active",
@@ -53,7 +53,7 @@ export function initAria(): InstructionIDs | undefined {
         window.addEventListener("DOMContentLoaded", initAriaOnBrowser);
     }
 
-  return INSTRUCTION_IDs;
+    return INSTRUCTION_IDs;
 }
 
 /**
