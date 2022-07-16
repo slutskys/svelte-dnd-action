@@ -2,15 +2,12 @@ import {makeScroller} from "./scroller";
 import {printDebug} from "../constants";
 import {resetIndexesCache} from "./listUtil";
 import {getPointFromEvent} from "./point";
+import {Point} from "../internalTypes";
 
 const INTERVAL_MS = 300;
 
-type MousePosition = {
-    x: number;
-    y: number;
-};
-
-let mousePosition: MousePosition | undefined;
+let lastMousePosition: Point | undefined;
+let mousePosition: Point | undefined;
 
 /**
  * Do not use this! it is visible for testing only until we get over the issue Cypress not triggering the mousemove listeners
@@ -18,7 +15,15 @@ let mousePosition: MousePosition | undefined;
  * @param {{clientX: number, clientY: number}} e
  */
 function updateMousePosition(e: MouseEvent | TouchEvent) {
+    lastMousePosition = mousePosition;
     mousePosition = getPointFromEvent(e);
+}
+
+function mousePositionStatic(prev: Point, curr: Point): boolean {
+    const xDiff = Math.abs(prev.x - curr.x);
+    const yDiff = Math.abs(prev.y - curr.y);
+
+    return xDiff < 10 && yDiff < 10;
 }
 
 const {scrollIfNeeded, resetScrolling} = makeScroller();
@@ -26,7 +31,7 @@ const {scrollIfNeeded, resetScrolling} = makeScroller();
 let next: number | undefined;
 
 function loop(containerEl: HTMLElement | undefined): void {
-    if (mousePosition) {
+    if (mousePosition && lastMousePosition && mousePositionStatic(lastMousePosition, mousePosition)) {
         const scrolled = scrollIfNeeded(mousePosition, containerEl ?? document.documentElement);
         if (scrolled) resetIndexesCache();
     }
