@@ -14,7 +14,7 @@ export type AbsoluteRect = {
 };
 
 export type IndexObj = {
-    index: number;
+    index: number | undefined;
     isProximityBased: boolean;
 };
 
