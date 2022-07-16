@@ -209,7 +209,7 @@ function handleDraggedEntered(e: DraggedEnteredEvent) {
     const shadowElIdx = isProximityBased && index === currentTarget.children.length - 1 ? index + 1 : index;
     shadowElDropZone = currentTarget;
 
-    if (typeof shadowElIdx === "number" && shadowElData) {
+    if (typeof shadowElIdx === "number" && shadowElIdx !== -1 && shadowElData) {
         items.splice(shadowElIdx, 0, shadowElData);
     }
 
@@ -244,7 +244,16 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
         printDebug(() => "drop is currently disabled");
         return;
     }
+
     const shadowElIdx = findShadowElementIdx(items);
+
+    // sometimes on fast updates, the zone that we're leaving hasn't had the chance to have its config updated before the drag zone is left
+    // which causes buggy behaviour, as try to splice `undefined` at the start of the originZoneItems
+    // we don't want to do any of the behaviour after this behaviour, as if there's no shadowElIdx, then we can't splice it out of the items array
+    // when dispatching the consider event
+    if (shadowElIdx === -1) {
+        return;
+    }
 
     shadowElDropZone = undefined;
 
@@ -265,9 +274,9 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
         }
     }
 
-    // sometimes on fast updates, the zone that we're leaving hasn't had the chance to have its config updated before the drag zone is left
-    // which causes buggy behaviour, as try to splice `undefined` at the start of the originZoneItems
-    if (shadowElIdx !== -1 && isOutsideAnyDz && originDropZone) {
+    const shadowItem = items.splice(shadowElIdx, 1)[0];
+
+    if (isOutsideAnyDz && originDropZone) {
         printDebug(() => "dragged left all, putting shadow element back in the origin dz");
         isDraggedOutsideOfAnyDz = true;
         shadowElDropZone = originDropZone;
@@ -276,7 +285,6 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
 
         if (draggedElData && originDzConfig && typeof originIndex === "number") {
             const originZoneItems = originDzConfig.items;
-            const shadowItem = items.splice(shadowElIdx, 1)[0];
             originZoneItems.splice(originIndex, 0, shadowItem);
 
             dispatchConsiderEvent(originDropZone, originZoneItems, {
@@ -321,7 +329,7 @@ function handleDraggedIsOverIndex(e: DraggedOverIndexEvent) {
     const {index} = e.detail.indexObj;
     const shadowElIdx = findShadowElementIdx(items);
 
-    if (shadowElData && draggedElData && typeof index === "number") {
+    if (shadowElData && draggedElData && typeof index === "number" && shadowElIdx !== -1) {
         items.splice(shadowElIdx, 1);
         items.splice(index, 0, shadowElData);
         dispatchConsiderEvent(currentTarget, items, {trigger: TRIGGERS.DRAGGED_OVER_INDEX, id: draggedElData[ITEM_ID_KEY], source: SOURCES.POINTER});
