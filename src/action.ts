@@ -59,6 +59,8 @@ function validateOptions(options: Options) {
         transformDraggedElement,
         autoAriaDisabled,
         centreDraggedOnCursor,
+        dropAnimationDurationMs,
+        scrollableContainerElement,
         ...rest
     } = options;
     /*eslint-enable*/
