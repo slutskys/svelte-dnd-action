@@ -329,7 +329,7 @@ function handleDraggedIsOverIndex(e: DraggedOverIndexEvent) {
     const {index} = e.detail.indexObj;
     const shadowElIdx = findShadowElementIdx(items);
 
-    if (shadowElData && draggedElData && typeof index === "number" && shadowElIdx !== -1) {
+    if (shadowElData && draggedElData && shadowElIdx !== -1) {
         items.splice(shadowElIdx, 1);
         items.splice(index, 0, shadowElData);
         dispatchConsiderEvent(currentTarget, items, {trigger: TRIGGERS.DRAGGED_OVER_INDEX, id: draggedElData[ITEM_ID_KEY], source: SOURCES.POINTER});

@@ -82,12 +82,28 @@ export function findWouldBeIndex(floatingAboveEl: HTMLElement, collectionBelowEl
 
     const children = collectionBelowEl.children;
 
-    // the container is empty, floating element should be the first
-    if (children.length === 0) {
+    // so that we're sure we can get through at least 1 iteration in the loop to find the min index
+    let firstHTMLChildIdx = -1;
+
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+
+        if (child instanceof HTMLElement) {
+            firstHTMLChildIdx = i;
+            break;
+        }
+    }
+
+    // the container is empty, no HTML children, floating element should be the first
+    if (firstHTMLChildIdx === -1) {
         return {index: 0, isProximityBased: true};
     }
 
     const shadowElIndex = cacheShadowRect(collectionBelowEl);
+
+    if (typeof shadowElIndex !== "number") {
+        return null;
+    }
 
     // the search could be more efficient but keeping it simple for now
     // a possible improvement: pass in the lastIndex it was found in and check there first, then expand from there
@@ -116,8 +132,17 @@ export function findWouldBeIndex(floatingAboveEl: HTMLElement, collectionBelowEl
 
     // this can happen if there is space around the children so the floating element has
     //entered the container but not any of the children, in this case we will find the nearest child
-    let minDistanceSoFar = Number.MAX_VALUE;
-    let indexOfMin = undefined;
+
+    const firstHTMLChild = children[firstHTMLChildIdx];
+
+    // should never happen, just for TS
+    if (!(firstHTMLChild instanceof HTMLElement)) {
+        throw new Error("Encountered non-HTMLElement child");
+    }
+
+    let minDistanceSoFar = calcDistanceBetweenCenters(floatingAboveEl, firstHTMLChild);
+    let indexOfMin = firstHTMLChildIdx;
+
     // we are checking all of them because we don't know whether we are dealing with a horizontal or vertical container and where the floating element entered from
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
