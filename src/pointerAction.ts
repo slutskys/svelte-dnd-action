@@ -245,7 +245,7 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
         return;
     }
     const shadowElIdx = findShadowElementIdx(items);
-    const shadowItem = items.splice(shadowElIdx, 1)[0];
+
     shadowElDropZone = undefined;
 
     let isOutsideAnyDz = false;
@@ -265,7 +265,9 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
         }
     }
 
-    if (isOutsideAnyDz && originDropZone) {
+    // sometimes on fast updates, the zone that we're leaving hasn't had the chance to have its config updated before the drag zone is left
+    // which causes buggy behaviour, as try to splice `undefined` at the start of the originZoneItems
+    if (shadowElIdx !== -1 && isOutsideAnyDz && originDropZone) {
         printDebug(() => "dragged left all, putting shadow element back in the origin dz");
         isDraggedOutsideOfAnyDz = true;
         shadowElDropZone = originDropZone;
@@ -274,7 +276,9 @@ function handleDraggedLeft(e: DraggedLeftEvent) {
 
         if (draggedElData && originDzConfig && typeof originIndex === "number") {
             const originZoneItems = originDzConfig.items;
+            const shadowItem = items.splice(shadowElIdx, 1)[0];
             originZoneItems.splice(originIndex, 0, shadowItem);
+
             dispatchConsiderEvent(originDropZone, originZoneItems, {
                 trigger: TRIGGERS.DRAGGED_LEFT_ALL,
                 id: draggedElData[ITEM_ID_KEY],
