@@ -67,14 +67,12 @@ export function moveDraggedElementToWasDroppedState(draggedEl: HTMLElement): voi
  * @param {HTMLElement} copyFromEl - the element the dragged element should look like, typically the shadow element
  * @param {number} currentMouseX
  * @param {number} currentMouseY
- * @param {function} transformDraggedElement - function to transform the dragged element, does nothing by default.
  */
 export function morphDraggedElementToBeLike(
     draggedEl: HTMLElement,
     copyFromEl: HTMLElement,
     currentMouseX: number,
-    currentMouseY: number,
-    transformDraggedElement: TransformDraggedElementFunction
+    currentMouseY: number
 ): void {
     const newRect = copyFromEl.getBoundingClientRect();
     const draggedElRect = draggedEl.getBoundingClientRect();
@@ -90,10 +88,6 @@ export function morphDraggedElementToBeLike(
         draggedEl.style.left = `${parseFloat(draggedEl.style.left) - relativeDistanceOfMousePointerFromDraggedSides.left * widthChange}px`;
         draggedEl.style.top = `${parseFloat(draggedEl.style.top) - relativeDistanceOfMousePointerFromDraggedSides.top * heightChange}px`;
     }
-
-    /// other properties
-    copyStylesFromTo(copyFromEl, draggedEl);
-    transformDraggedElement();
 }
 
 /**

@@ -725,9 +725,7 @@ export function dndzone(node: HTMLElement, options: Options) {
             styleDraggable(draggableEl, newConfig.dragDisabled);
             if (idx === shadowElIdx) {
                 if (draggedEl && !newConfig.morphDisabled && currentMousePosition) {
-                    morphDraggedElementToBeLike(draggedEl, draggableEl, currentMousePosition.x, currentMousePosition.y, () =>
-                        newConfig.transformDraggedElement(draggedEl, draggedElData, idx)
-                    );
+                    morphDraggedElementToBeLike(draggedEl, draggableEl, currentMousePosition.x, currentMousePosition.y);
                 }
                 decorateShadowEl(draggableEl);
                 continue;

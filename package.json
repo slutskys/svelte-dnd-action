@@ -28,6 +28,9 @@
         "rollup": "^1.20.0",
         "typescript": "^4.5.5"
     },
+    "peerDependencies": {
+        "svelte": ">=3.23.0"
+    },
     "keywords": [
         "svelte",
         "drag and drop",
