@@ -1,6 +1,5 @@
 import {SHADOW_ELEMENT_ATTRIBUTE_NAME, DRAGGED_ELEMENT_ID} from "../constants";
 import {GetClasses, GetStyles, Point} from "../internalTypes";
-import {TransformDraggedElementFunction} from "../types";
 import {findCenter} from "./intersection";
 import {svelteNodeClone} from "./svelteNodeClone";
 
